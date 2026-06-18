@@ -1,0 +1,121 @@
+import type { RendererElement, RendererNode } from 'vue';
+import { Icon } from '#components';
+import { DatabaseClientType } from '~/core/constants/database-client-type';
+
+export interface IDBSupport {
+  type: DatabaseClientType;
+  name: string;
+  icon: globalThis.VNode<
+    RendererNode,
+    RendererElement,
+    {
+      [key: string]: any;
+    }
+  >;
+  isSupport: boolean;
+  isBeta?: boolean;
+  unsupportedLabel?: string;
+  description?: string;
+}
+
+export const databaseSupports: IDBSupport[] = [
+  {
+    type: DatabaseClientType.POSTGRES,
+    name: 'PostgreSQL',
+    icon: h(Icon, { name: 'logos:postgresql' }),
+    isSupport: true,
+    description: 'Relational SQL workflows',
+  },
+  {
+    type: DatabaseClientType.MYSQL,
+    name: 'MySQL',
+    icon: h(Icon, { name: 'logos:mysql' }),
+    isSupport: true,
+    isBeta: true,
+    description: 'Relational SQL workflows',
+  },
+  {
+    type: DatabaseClientType.MARIADB,
+    name: 'MariaDB',
+    icon: h(Icon, { name: 'logos:mariadb-icon' }),
+    isSupport: true,
+    isBeta: true,
+    description: 'Relational SQL workflows',
+  },
+  {
+    type: DatabaseClientType.ORACLE,
+    name: 'Oracle',
+    icon: h(Icon, { name: 'simple-icons:oracle', class: 'text-red-500' }),
+    isSupport: false,
+    unsupportedLabel: 'Coming soon',
+    description: 'Relational SQL workflows',
+  },
+  {
+    type: DatabaseClientType.SQLITE3,
+    name: 'SQLite',
+    icon: h(Icon, { name: 'file-icons:sqlite' }),
+    isSupport: true,
+    isBeta: true,
+    description: 'Local file, Cloudflare D1, Turso',
+  },
+  {
+    type: DatabaseClientType.REDIS,
+    name: 'Redis',
+    icon: h(Icon, { name: 'logos:redis' }),
+    isSupport: true,
+    isBeta: true,
+    description: 'Browser, workbench, analysis',
+  },
+  {
+    type: DatabaseClientType.MSSQL,
+    name: 'SQL Server',
+    icon: h(Icon, { name: 'simple-icons:microsoftsqlserver' }),
+    isSupport: false,
+    unsupportedLabel: 'Coming soon',
+  },
+  {
+    type: DatabaseClientType.SNOWFLAKE,
+    name: 'Snowflake',
+    icon: h(Icon, { name: 'simple-icons:snowflake' }),
+    isSupport: false,
+    unsupportedLabel: 'Coming soon',
+  },
+];
+
+const DATABASE_SUPPORT_TYPE_ALIASES: Partial<
+  Record<DatabaseClientType, DatabaseClientType>
+> = {
+  [DatabaseClientType.MYSQL2]: DatabaseClientType.MYSQL,
+  [DatabaseClientType.BETTER_SQLITE3]: DatabaseClientType.SQLITE3,
+};
+
+export const DEFAULT_DB_PORTS: Record<string, string> = {
+  [DatabaseClientType.POSTGRES]: '5432',
+  [DatabaseClientType.MYSQL]: '3306',
+  [DatabaseClientType.MARIADB]: '3306',
+  [DatabaseClientType.MYSQL2]: '3306',
+  [DatabaseClientType.REDIS]: '6379',
+  [DatabaseClientType.MSSQL]: '1433',
+  [DatabaseClientType.ORACLE]: '1521',
+  [DatabaseClientType.BETTER_SQLITE3]: '0',
+  [DatabaseClientType.SQLITE3]: '0',
+  [DatabaseClientType.SNOWFLAKE]: '443',
+};
+
+export const getDatabaseSupportByType = (type: DatabaseClientType) => {
+  const normalizedType = DATABASE_SUPPORT_TYPE_ALIASES[type] ?? type;
+  return databaseSupports.find(e => e.type === normalizedType);
+};
+
+export const isSqlite3ConnectionsEnabled = (value: unknown) => {
+  return value !== false && value !== 'false' && value !== '0';
+};
+
+export const isSqliteConnectionDisabled = (
+  connection: { type: DatabaseClientType | string },
+  sqlite3ConnectionsEnabled: boolean
+) => {
+  return (
+    connection.type === DatabaseClientType.SQLITE3 && !sqlite3ConnectionsEnabled
+  );
+};

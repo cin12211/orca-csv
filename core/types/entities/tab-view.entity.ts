@@ -1,0 +1,131 @@
+import type { FileSystemFileHandle } from '@vueuse/core';
+
+export enum TabViewType {
+  AllERD = 'AllERD',
+  DetailERD = 'DetailERD',
+  TableOverview = 'TableOverview',
+  TableDetail = 'tableDetail',
+
+  FunctionsOverview = 'FunctionsOverview',
+  FunctionsDetail = 'FunctionsDetail',
+
+  ViewOverview = 'ViewOverview',
+  ViewDetail = 'ViewDetail',
+
+  CodeQuery = 'CodeQuery',
+
+  UserPermissions = 'UserPermissions',
+  DatabaseTools = 'DatabaseTools',
+  InstanceInsights = 'InstanceInsights',
+  SchemaDiff = 'SchemaDiff',
+  Connection = 'Connection',
+  Explorer = 'Explorer',
+  Export = 'Export',
+  AgentChat = 'AgentChat',
+  RedisBrowser = 'RedisBrowser',
+  RedisPubSub = 'RedisPubSub',
+  CSVEditor = 'CSVEditor',
+}
+
+export enum WorkspaceTabOpenAction {
+  SqlShortcut = 'sql-shortcut',
+  NewSqlFile = 'new-sql-file',
+  InstanceInsights = 'instance-insights',
+}
+
+export enum WorkspaceSqlFileSource {
+  Existing = 'existing',
+  Starter = 'starter',
+  ManualCreate = 'manual-create',
+}
+
+export interface BaseTabMetadata {
+  type: TabViewType;
+  treeNodeId?: string;
+  openAction?: WorkspaceTabOpenAction;
+  [key: string]: any;
+}
+
+export interface TableDetailMetadata extends BaseTabMetadata {
+  type: TabViewType.TableDetail;
+  tableName: string;
+}
+
+export interface ViewDetailMetadata extends BaseTabMetadata {
+  type: TabViewType.ViewDetail;
+  virtualTableId: string;
+  viewName: string;
+}
+
+export interface FunctionDetailMetadata extends BaseTabMetadata {
+  type: TabViewType.FunctionsDetail;
+  functionId: string;
+}
+
+export interface ErdDetailMetadata extends BaseTabMetadata {
+  type: TabViewType.DetailERD | TabViewType.AllERD;
+  tableName?: string;
+}
+
+export interface CodeQueryMetadata extends BaseTabMetadata {
+  type: TabViewType.CodeQuery;
+  tableName?: string;
+  queryId?: string;
+  fileSource?: WorkspaceSqlFileSource;
+}
+
+export interface AgentChatMetadata extends BaseTabMetadata {
+  type: TabViewType.AgentChat;
+  historyId?: string;
+}
+
+export interface RedisBrowserMetadata extends BaseTabMetadata {
+  type: TabViewType.RedisBrowser;
+  databaseIndex?: number;
+  keyPattern?: string;
+  selectedKey?: string;
+}
+
+export interface RedisPubSubMetadata extends BaseTabMetadata {
+  type: TabViewType.RedisPubSub;
+  databaseIndex?: number;
+}
+
+export interface CsvEditorMetadata extends BaseTabMetadata {
+  type: TabViewType.CSVEditor;
+  filePath?: string;
+  fileName: string;
+  fileSize?: number;
+  hasHeaders?: boolean;
+  encoding?: string;
+  rowCount?: number;
+  lastModified?: number;
+  _webHandle?: FileSystemFileHandle;
+}
+
+export type TabMetadata =
+  | TableDetailMetadata
+  | ViewDetailMetadata
+  | FunctionDetailMetadata
+  | ErdDetailMetadata
+  | CodeQueryMetadata
+  | AgentChatMetadata
+  | RedisBrowserMetadata
+  | RedisPubSubMetadata
+  | CsvEditorMetadata
+  | BaseTabMetadata;
+
+export type TabView = {
+  workspaceId: string;
+  connectionId: string;
+  schemaId: string;
+  id: string;
+  index: number;
+  name: string;
+  icon: string;
+  iconClass?: string;
+  type: TabViewType;
+  routeName: string;
+  routeParams?: Record<string, string | number>;
+  metadata?: TabMetadata;
+};

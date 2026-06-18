@@ -1,0 +1,21 @@
+import type { Connection } from '~/core/stores';
+
+export function getConnectionParams(connection?: Connection) {
+  if (!connection) return {};
+
+  return {
+    dbConnectionString: connection.connectionString || '',
+    host: connection.host,
+    port: connection.port,
+    username: connection.username,
+    password: connection.password,
+    database: connection.database,
+    serviceName: connection.serviceName,
+    filePath: connection.filePath,
+    type: connection.type,
+    providerKind: connection.providerKind,
+    managedSqlite: connection.managedSqlite,
+    ssl: connection.ssl,
+    ssh: connection.ssh,
+  };
+}
