@@ -73,8 +73,12 @@ const sqlite3ConnectionsEnabled =
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
 
-  ssr: false,
+  ssr: true,
   telemetry: false,
+
+  routeRules: {
+    '/csv/**': { ssr: false },
+  },
 
   devServer: {
     host: '0.0.0.0',
