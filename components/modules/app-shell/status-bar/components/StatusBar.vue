@@ -1,27 +1,18 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { useTabManagement } from '~/core/composables/useTabManagement';
-import { useWorkspaceConnectionRoute } from '~/core/composables/useWorkspaceConnectionRoute';
 import { useChangelogModal } from '~/core/contexts/useChangelogModal';
 import { useSettingsModal } from '~/core/contexts/useSettingsModal';
 import { TabViewType } from '~/core/stores';
 import { useTabViewsStore } from '~/core/stores/useTabViewsStore';
-import CurrentPositionPath from './CurrentPositionPath.vue';
 
 const tabViewStore = useTabViewsStore();
 const { openChangelog } = useChangelogModal();
 const { openSettings } = useSettingsModal();
-const { openInstanceInsightsTab } = useTabManagement();
 const config = useRuntimeConfig();
 const ggFormLink = config.public.ggFormLink;
 const githubLink = config.public.githubLink;
 
 const { activeTab } = storeToRefs(tabViewStore);
-const { workspaceId, connectionId } = useWorkspaceConnectionRoute();
-
-const canOpenInstanceInsights = computed(
-  () => !!workspaceId.value && !!connectionId.value
-);
 
 const onBackToHome = async () => {
   await navigateTo('/');
@@ -29,10 +20,6 @@ const onBackToHome = async () => {
   //   connId: undefined,
   //   wsId: undefined,
   // });
-};
-
-const onOpenInstanceInsights = async () => {
-  await openInstanceInsightsTab();
 };
 
 const formattedTabType = computed(() => {
@@ -72,7 +59,7 @@ const formattedTabType = computed(() => {
 </script>
 <template>
   <div
-    class="w-full h-6 min-h-6 shadow px-2 flex items-center justify-between gap-2 bg-sidebar-accent"
+    class="w-full h-6 min-h-6 shadow px-2 flex items-center justify-baseline gap-2 bg-sidebar-accent"
   >
     <div class="flex min-w-0 flex-1 items-center gap-3 h-full overflow-hidden">
       <Tooltip>
@@ -87,14 +74,10 @@ const formattedTabType = computed(() => {
         </TooltipTrigger>
         <TooltipContent> Back to Home </TooltipContent>
       </Tooltip>
-
-      <div class="min-w-0 overflow-hidden">
-        <CurrentPositionPath />
-      </div>
     </div>
 
     <div
-      class="min-w-0 flex-1 truncate text-center text-muted-foreground text-xs"
+      class="min-w-0 flex-1 truncate text-muted-foreground text-xs"
       v-if="activeTab"
     >
       {{ formattedTabType }}:
@@ -144,19 +127,6 @@ const formattedTabType = computed(() => {
           </div>
         </TooltipTrigger>
         <TooltipContent> Version: {{ config.public.version }} </TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger as-child>
-          <div
-            class="flex items-center justify-center hover:bg-muted rounded cursor-pointer"
-            :class="!canOpenInstanceInsights && 'opacity-50 cursor-not-allowed'"
-            @click="onOpenInstanceInsights"
-          >
-            <Icon name="hugeicons:activity-02" class="size-4!" />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent> Instance Insights </TooltipContent>
       </Tooltip>
 
       <!-- <Tooltip>

@@ -1,4 +1,3 @@
-import { useTabManagement } from '~/core/composables/useTabManagement';
 import { useWorkspaceConnectionRoute } from '~/core/composables/useWorkspaceConnectionRoute';
 import { useAppContext } from '~/core/contexts/useAppContext';
 import { useChangelogModal } from '~/core/contexts/useChangelogModal';
@@ -18,7 +17,6 @@ const PREFIX = {
 export function useSystemCommands(): CommandProvider {
   const settingsModal = useSettingsModal();
   const changelogModal = useChangelogModal();
-  const { openInstanceInsightsTab } = useTabManagement();
   const { workspaceId, connectionId } = useWorkspaceConnectionRoute();
 
   const { connectToConnection } = useAppContext();
@@ -68,12 +66,6 @@ export function useSystemCommands(): CommandProvider {
       group: 'Commands',
     },
     {
-      id: 'cmd-show-instance-insights',
-      label: 'Instance Insights',
-      icon: 'hugeicons:activity-02',
-      group: 'Commands',
-    },
-    {
       id: 'cmd-open-whats-new',
       label: "What's New",
       icon: 'hugeicons:stars',
@@ -103,9 +95,6 @@ export function useSystemCommands(): CommandProvider {
     });
     map.set('cmd-close-app', () => {
       window.close();
-    });
-    map.set('cmd-show-instance-insights', async () => {
-      await openInstanceInsightsTab();
     });
     map.set('cmd-open-whats-new', () => {
       void changelogModal.openChangelog();

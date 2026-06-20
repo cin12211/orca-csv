@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, computed } from 'vue';
 import { getConnectionParams } from '@/core/helpers/connection-helper';

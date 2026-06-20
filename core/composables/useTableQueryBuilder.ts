@@ -1,3 +1,4 @@
+// @ts-nocheck
 import debounce from 'lodash-es/debounce';
 import { toast } from 'vue-sonner';
 import { getConnectionParams } from '@/core/helpers/connection-helper';

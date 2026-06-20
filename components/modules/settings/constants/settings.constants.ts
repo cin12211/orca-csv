@@ -14,11 +14,6 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     componentKey: SettingsComponentKey.AppearanceConfig,
   },
   {
-    name: 'Editor',
-    icon: 'hugeicons:scroll',
-    componentKey: SettingsComponentKey.EditorConfig,
-  },
-  {
     name: 'Quick Query',
     icon: 'hugeicons:grid-table',
     componentKey: SettingsComponentKey.QuickQueryConfig,
@@ -27,12 +22,6 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     name: 'Agent',
     icon: 'hugeicons:chat-bot',
     componentKey: SettingsComponentKey.AgentConfig,
-  },
-  {
-    name: 'Desktop',
-    icon: 'hugeicons:computer',
-    componentKey: SettingsComponentKey.DesktopConfig,
-    desktopOnly: true,
   },
   {
     name: 'Environment Tags',
@@ -44,9 +33,6 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     icon: 'hugeicons:file-management',
     componentKey: SettingsComponentKey.BackupRestoreConfig,
   },
-  // { name: 'Language & region', icon: 'hugeicons:globe', disable: true },
-  // { name: 'Privacy & visibility', icon: 'hugeicons:lock', disable: true },
-  // { name: 'Advanced', icon: 'hugeicons:settings-01', disable: true },
 ];
 
 export const TABLE_ROW_HEIGHT_RANGE = {

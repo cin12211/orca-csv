@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useFileSystemAccess } from '@vueuse/core';
 import { ref, watch, toRef, onMounted, onUnmounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { BaseEmpty } from '@/components/base/base-empty';
 import { LoadingOverlay } from '@/components/base/loading-overlay';
 import type { CsvFileHandle } from '@/core/services/csv';
@@ -7,6 +9,7 @@ import { createCsvFileSystemForHandle } from '@/core/services/csv';
 import { Button } from '~/components/ui/button';
 import { HASH_INDEX_ID } from '~/core/constants';
 import { isElectron } from '~/core/helpers/environment';
+import { useTabViewsStore } from '~/core/stores/useTabViewsStore';
 import { CsvEditorControlBar, CsvEditorTable, CsvFilter } from '../components';
 import { CsvFilterCompose } from '../constants/csv-filter.constants';
 import {
@@ -19,6 +22,7 @@ import {
   useCsvGridSizing,
   useCsvShortcuts,
 } from '../hooks';
+import type { CsvEditedCell } from '../types';
 import type { CsvFilterRow } from '../types/csv-filter.types';
 
 const props = defineProps<{
@@ -38,7 +42,17 @@ const composeWith = ref<CsvFilterCompose>(CsvFilterCompose.AND);
 const csvEditorContainerRef = ref<HTMLElement>();
 const csvFilterRef = ref<InstanceType<typeof CsvFilter>>();
 
-const csvFileSystem = createCsvFileSystemForHandle(props.fileHandle);
+const fsAccess = useFileSystemAccess({
+  dataType: 'Text',
+  types: [
+    {
+      description: 'CSV Files',
+      accept: { 'text/csv': ['.csv'] },
+    },
+  ],
+});
+
+const csvFileSystem = createCsvFileSystemForHandle(props.fileHandle, fsAccess);
 
 const { applyFilterToGrid } = useCsvFilter();
 
@@ -86,12 +100,11 @@ const {
   originalData,
 });
 
-const isReadOnly = computed(
-  () =>
-    !isElectron() &&
-    props.fileHandle.platform === 'web' &&
-    !props.fileHandle._webHandle
-);
+const tabViewsStore = useTabViewsStore();
+const route = useRoute();
+const tabViewId = computed(() => route.params.tabViewId as string);
+
+const isReadOnly = computed(() => false);
 
 const hasChanges = computed(
   () => !isReadOnly.value && (hasEditedRows() || isSchemaModified.value)
@@ -131,6 +144,17 @@ const {
   },
   csvFileSystem,
   onSaveSuccess: () => {
+    if (tabViewId.value) {
+      void tabViewsStore.updateTabMetadata(
+        tabViewId.value,
+        {
+          fileName: props.fileHandle.name,
+          fileSize: props.fileHandle.size,
+          lastModified: props.fileHandle.lastModified,
+        },
+        props.fileHandle.name
+      );
+    }
     // Refresh table and data after save
     loadCsvData();
     isFileModifiedExternally.value = false;
@@ -142,7 +166,20 @@ const {
 });
 
 // 4. Columns Generation
-const { columnDefs } = useCsvColumnDefs({ headers });
+const dirtyTracker = { cells: [] as CsvEditedCell[] };
+
+watch(
+  editedCells,
+  cells => {
+    dirtyTracker.cells = cells;
+    if (gridApi.value) {
+      gridApi.value.refreshCells({ force: true });
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+const { columnDefs } = useCsvColumnDefs({ headers, dirtyTracker });
 
 // 5. Grid Options
 const { gridOptions } = useCsvGridOptions({
@@ -282,6 +319,13 @@ async function handleDeleteSelected() {
   selectedRows.value = [];
   if (gridApi.value) {
     gridApi.value.setGridOption('rowData', [...data.value]);
+  }
+}
+
+function handleCellValueChanged(event: any) {
+  onCellValueChanged(event);
+  if (gridApi.value) {
+    gridApi.value.redrawRows({ rowNodes: [event.node] });
   }
 }
 
@@ -431,6 +475,7 @@ function handleChangeComposeWith(val: CsvFilterCompose) {
         @selection-changed="onSelectionChanged"
         @grid-ready="onGridReady"
         @on-row-data-updated="onRowDataUpdated"
+        @cell-value-changed="handleCellValueChanged"
         @add-row-at="handleAddRowAt"
         @delete-row-at="handleDeleteRowAt"
         @add-column="handleAddColumn"

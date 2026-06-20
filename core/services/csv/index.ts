@@ -1,11 +1,8 @@
-import { isElectron } from '../../helpers/environment';
-import { ElectronCsvFileSystem } from './ElectronCsvFileSystem';
 import { WebCsvFileSystem } from './WebCsvFileSystem';
 import type { CsvFileSystemAPI, CsvFileHandle } from './types';
 
 export * from './types';
 export * from './errors';
-export { ElectronCsvFileSystem } from './ElectronCsvFileSystem';
 export { WebCsvFileSystem } from './WebCsvFileSystem';
 export type { CsvFileHandle } from './types';
 
@@ -33,13 +30,10 @@ export function isFileSystemObserverSupported(): boolean {
  * @returns Platform-specific CsvFileSystemAPI instance
  */
 export function createCsvFileSystemForHandle(
-  handle: CsvFileHandle
+  handle: CsvFileHandle,
+  fsAccess?: any
 ): CsvFileSystemAPI {
-  if (handle.platform === 'electron') {
-    return new ElectronCsvFileSystem();
-  } else {
-    return new WebCsvFileSystem();
-  }
+  return new WebCsvFileSystem(fsAccess, handle.id);
 }
 
 /**
@@ -49,9 +43,7 @@ export function createCsvFileSystemForHandle(
  * @deprecated Use createCsvFileSystemForHandle instead to respect file handle platform
  */
 export function createCsvFileSystem(): CsvFileSystemAPI {
-  if (isElectron()) {
-    return new ElectronCsvFileSystem();
-  } else if (isFileSystemAPISupported()) {
+  if (isFileSystemAPISupported()) {
     return new WebCsvFileSystem();
   } else {
     throw new Error('CSV editor not supported on this platform');
@@ -62,10 +54,6 @@ export function createCsvFileSystem(): CsvFileSystemAPI {
  * Get file system implementation with fallback
  */
 export function getCsvFileSystemOrFallback(): CsvFileSystemAPI | null {
-  if (isElectron()) {
-    return new ElectronCsvFileSystem();
-  }
-
   if (isFileSystemAPISupported()) {
     return new WebCsvFileSystem();
   }

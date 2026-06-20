@@ -48,18 +48,25 @@ export const useTabViewsStore = defineStore(
     const { tabViewId } = storeToRefs(wsStateStore);
 
     const tabViews = ref<TabView[]>([]);
+    const activeTabId = ref<string | undefined>(undefined);
+
+    const effectiveTabViewId = computed(
+      () => activeTabId.value ?? tabViewId.value
+    );
 
     const activeTab = computed(() =>
-      tabViews.value.find(t => t.id === tabViewId.value)
+      tabViews.value.find(t => t.id === effectiveTabViewId.value)
     );
 
     const isLoading = ref(false);
 
     const onSetTabId = async (tabId?: string) => {
       if (!workspaceId.value || !connectionId.value) {
-        throw new Error(
-          'No workspace or connection selected or schema selected'
-        );
+        const existingTab = tabId ? getTabById(tabId) : undefined;
+        if (existingTab) {
+          activeTabId.value = tabId;
+        }
+        return;
       }
 
       await wsStateStore.setTabViewId({
@@ -104,6 +111,7 @@ export const useTabViewsStore = defineStore(
       const nextConnectionId = params?.connectionId ?? connectionId.value;
 
       if (!nextWorkspaceId || !nextConnectionId) {
+        await navigateTo('/', { replace: true });
         return;
       }
 
@@ -207,13 +215,19 @@ export const useTabViewsStore = defineStore(
       const tab = getTabById(tabId);
 
       if (tab) {
+        const params: Record<string, any> = {
+          ...tab.routeParams,
+        };
+        if (tab.workspaceId) {
+          params.workspaceId = tab.workspaceId;
+        }
+        if (tab.connectionId) {
+          params.connectionId = tab.connectionId;
+        }
+
         await navigateTo({
           name: tab.routeName,
-          params: {
-            ...tab.routeParams,
-            workspaceId: tab.workspaceId,
-            connectionId: tab.connectionId,
-          } as any,
+          params: params as any,
         });
 
         await onSetTabId(tab.id);
@@ -378,7 +392,7 @@ export const useTabViewsStore = defineStore(
     );
 
     const onActiveCurrentTab = async (connectionId: string) => {
-      if (!tabViewId.value) {
+      if (!effectiveTabViewId.value) {
         await navigateToConnectionRoot({
           workspaceId: workspaceId.value || '',
           connectionId,
@@ -387,7 +401,25 @@ export const useTabViewsStore = defineStore(
         console.error('tabViewId not found');
         return;
       }
-      await selectTab(tabViewId.value);
+      await selectTab(effectiveTabViewId.value);
+    };
+
+    const updateTabMetadata = async (
+      tabId: string,
+      metadata: any,
+      name?: string
+    ) => {
+      const tab = tabViews.value.find(t => t.id === tabId);
+      if (tab) {
+        tab.metadata = {
+          ...tab.metadata,
+          ...metadata,
+        };
+        if (name) {
+          tab.name = name;
+        }
+        await storageApis.tabViewStorage.create(tab);
+      }
     };
 
     return {
@@ -404,6 +436,7 @@ export const useTabViewsStore = defineStore(
       closeToTheRight,
       onActiveCurrentTab,
       loadPersistData,
+      updateTabMetadata,
     };
   },
   {

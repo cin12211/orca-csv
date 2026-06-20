@@ -1,4 +1,3 @@
-import { isElectron } from '~/core/helpers/environment';
 import { idbReplaceAll } from '~/core/persist/adapters/idb/primitives';
 import {
   PERSIST_COLLECTIONS,
@@ -24,15 +23,7 @@ export function useResetAllData() {
     isResetting.value = true;
 
     try {
-      if (isElectron()) {
-        if (!window.electronAPI?.window.resetAllData) {
-          throw new Error('Desktop reset is unavailable in this build.');
-        }
-
-        await window.electronAPI.window.resetAllData();
-      } else {
-        await clearBrowserPersistedData();
-      }
+      await clearBrowserPersistedData();
 
       localStorage.clear();
       window.sessionStorage?.clear();

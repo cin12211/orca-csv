@@ -43,13 +43,8 @@ export function useCsvGridOptions(
         if (rowId === undefined) return undefined;
 
         const edit = options.editedCells.value.find(e => e.rowId === rowId);
-        if (edit) {
-          if (edit.isNewRow) {
-            return { backgroundColor: 'rgba(212, 244, 221, 0.4)' }; // Light green for new row
-          }
-          if (Object.keys(edit.changedData).length > 0) {
-            return { backgroundColor: 'rgba(255, 243, 205, 0.4)' }; // Light orange for edited row
-          }
+        if (edit && edit.isNewRow) {
+          return { backgroundColor: 'rgba(212, 244, 221, 0.4)' }; // Light green for new row
         }
         return undefined;
       },

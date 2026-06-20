@@ -3,8 +3,6 @@
 import { LoadingOverlay, MigrationScreen, TooltipProvider } from '#components';
 import { CommandPaletteView } from '@/components/modules/command-palette';
 import { useMigrationState } from '~/core/composables/useMigrationState';
-import ElectronUpdateStartupDialog from './components/modules/app-shell/status-bar/components/ElectronUpdateStartupDialog.vue';
-import ChangelogPopup from './components/modules/changelog/ChangelogPopup.vue';
 import {
   StrictModeConfirmDialog,
   useStrictModeGuardState,
@@ -12,10 +10,6 @@ import {
 import Settings from './components/modules/settings';
 import { Toaster } from './components/ui/sonner';
 import { useAppearance } from './core/composables/useAppearance';
-import {
-  scheduleElectronStartupUpdateCheck,
-  startElectronBackgroundUpdateChecks,
-} from './core/composables/useElectronUpdater';
 import { DEFAULT_DEBOUNCE_INPUT } from './core/constants';
 import { useAppContext } from './core/contexts';
 import { useChangelogModal } from './core/contexts/useChangelogModal';
@@ -39,49 +33,16 @@ const { isLoading } = useLoadingIndicator();
 const { isBlocking: isMigrating } = useMigrationState();
 
 const { connectToConnection } = useAppContext();
-const { autoShowIfNewVersion } = useChangelogModal();
 const { openSettings } = useSettingsModal();
-let removeOpenSettingsListener: (() => void) | undefined;
 
 useAppearance();
 
-const route = useRoute('workspaceId-connectionId');
-
 useHead({
-  title: 'Orca Query',
+  title: 'OrcaQ CSV Viewer',
 });
-
-// React to route changes and initial mount
-watch(
-  () => [route.params.workspaceId, route.params.connectionId],
-  async ([workspaceId, connectionId]) => {
-    if (!workspaceId || !connectionId) return;
-
-    await connectToConnection({
-      connId: connectionId as string,
-      wsId: workspaceId as string,
-      isRefresh: false, // Default to false for transitions
-    });
-  },
-  { immediate: true }
-);
 
 onMounted(async () => {
-  // Auto-show changelog if there's a new version
-  autoShowIfNewVersion();
-
-  removeOpenSettingsListener = window.electronAPI?.window.onOpenSettings?.(
-    () => {
-      openSettings();
-    }
-  );
-
-  scheduleElectronStartupUpdateCheck();
-  startElectronBackgroundUpdateChecks();
-});
-
-onBeforeUnmount(() => {
-  removeOpenSettingsListener?.();
+  // App initialization
 });
 </script>
 
@@ -94,7 +55,6 @@ onBeforeUnmount(() => {
     />
     <TooltipProvider :delay-duration="DEFAULT_DEBOUNCE_INPUT">
       <div class="flex h-screen w-screen flex-col overflow-hidden">
-        <DownloadBanner />
         <div class="flex-1 min-h-0">
           <NuxtLayout>
             <NuxtPage />
@@ -105,8 +65,6 @@ onBeforeUnmount(() => {
 
     <CommandPaletteView />
     <Settings />
-    <ChangelogPopup />
-    <ElectronUpdateStartupDialog />
     <StrictModeConfirmDialog
       :open="strictModeDialogOpen"
       :strict-tags="activeStrictModeTags"

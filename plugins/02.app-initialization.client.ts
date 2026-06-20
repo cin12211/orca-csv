@@ -1,6 +1,5 @@
 import {
   useAppConfigStore,
-  useAgentStore,
   useEnvironmentTagStore,
   useWorkspacesStore,
   useManagementConnectionStore,
@@ -13,7 +12,6 @@ export default defineNuxtPlugin(async () => {
 
   // 1. Hydrate Essential Stores — required for any route to function properly.
   const appConfigStore = useAppConfigStore();
-  const agentStore = useAgentStore();
   const workspaceStore = useWorkspacesStore();
   const connectionStore = useManagementConnectionStore();
   const wsStateStore = useWSStateStore();
@@ -22,7 +20,6 @@ export default defineNuxtPlugin(async () => {
   try {
     await Promise.all([
       appConfigStore.loadPersistData(),
-      agentStore.loadPersistData(),
       workspaceStore.loadPersistData(),
       connectionStore.loadPersistData(),
       wsStateStore.loadPersistData(),

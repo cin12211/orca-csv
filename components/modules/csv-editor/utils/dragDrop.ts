@@ -1,40 +1,4 @@
-import { isElectron } from '@/core/helpers/environment';
 import type { CsvFileHandle } from '@/core/services/csv';
-
-/**
- * Create file handle from Electron drag-drop event file
- * @param file File from DataTransfer.files
- */
-export async function createCsvFileHandleFromElectronDrag(
-  file: File
-): Promise<CsvFileHandle | null> {
-  if (!window.electronAPI?.csv) {
-    return null;
-  }
-
-  // Get file path via IPC
-  const path = await window.electronAPI.csv.getPathForFile(file);
-  if (!path) {
-    return null;
-  }
-
-  // Validate via IPC
-  const validation = await window.electronAPI.csv.validateFile(path);
-
-  if (!validation.valid) {
-    return null;
-  }
-
-  return {
-    id: `electron-${path}`,
-    name: file.name,
-    path,
-    size: validation.size!,
-    lastModified: validation.lastModified!,
-    platform: 'electron',
-    _electronPath: path,
-  };
-}
 
 /**
  * Create file handle from Web drag-drop event item
@@ -91,27 +55,12 @@ export async function createCsvFileHandlesFromDrop(
 ): Promise<CsvFileHandle[]> {
   const handles: CsvFileHandle[] = [];
 
-  if (isElectron()) {
-    const files = Array.from(dataTransfer.files);
-    console.log('🚀 ~ createCsvFileHandlesFromDrop ~ files:', files);
-    for (const file of files) {
-      console.log('🚀 ~ createCsvFileHandlesFromDrop ~ file:', file);
-      if (file.name.endsWith('.csv')) {
-        const handle = await createCsvFileHandleFromElectronDrag(file);
-        console.log('🚀 ~ createCsvFileHandlesFromDrop ~ handle:', handle);
-        if (handle) {
-          handles.push(handle);
-        }
-      }
-    }
-  } else {
-    const items = Array.from(dataTransfer.items);
-    for (const item of items) {
-      if (item.kind === 'file') {
-        const handle = await createCsvFileHandleFromWebDrag(item);
-        if (handle) {
-          handles.push(handle);
-        }
+  const items = Array.from(dataTransfer.items);
+  for (const item of items) {
+    if (item.kind === 'file') {
+      const handle = await createCsvFileHandleFromWebDrag(item);
+      if (handle) {
+        handles.push(handle);
       }
     }
   }

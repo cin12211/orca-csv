@@ -1,7 +1,5 @@
-import { isElectron } from '@/core/helpers/environment';
 import type { CsvFileHandle } from '~/core/services/csv';
 import { MAX_CSV_FILE_SIZE } from '../constants';
-import { createCsvFileHandleFromElectronDrag } from './dragDrop';
 
 /**
  * Create CSV file handles from File objects (e.g., from useDropZone)
@@ -18,27 +16,6 @@ export async function createCsvFileHandlesFromFiles(
     if (!file.name.endsWith('.csv')) continue;
     if (file.size > MAX_CSV_FILE_SIZE) continue;
 
-    console.log(
-      '🔍 [createCsvFileHandlesFromFiles] Creating handle for file:',
-      {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        isElectron: isElectron(),
-      }
-    );
-
-    if (isElectron()) {
-      const electronHandle = await createCsvFileHandleFromElectronDrag(
-        file as File & { path?: string }
-      );
-
-      if (electronHandle) {
-        handles.push(electronHandle);
-        continue;
-      }
-    }
-
     handles.push({
       id: `web-${file.name}-${file.lastModified}`,
       name: file.name,
@@ -49,9 +26,5 @@ export async function createCsvFileHandlesFromFiles(
     });
   }
 
-  console.log(
-    '🔍 [createCsvFileHandlesFromFiles] Created handles:',
-    handles.length
-  );
   return handles;
 }

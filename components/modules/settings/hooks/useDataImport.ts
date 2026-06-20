@@ -1,6 +1,4 @@
 import { ref, shallowRef } from 'vue';
-import { isElectron } from '~/core/helpers/environment';
-import { persistMergeAll as electronPersistMergeAll } from '~/core/persist/adapters/electron/primitives';
 import { idbMergeAll } from '~/core/persist/adapters/idb/primitives';
 import {
   checkImportCompatibility,
@@ -11,7 +9,6 @@ import {
   PERSIST_COLLECTIONS,
   type PersistCollection,
 } from '~/core/storage/idbRegistry';
-import { useAgentStore } from '~/core/stores/agentStore';
 import { useAppConfigStore } from '~/core/stores/appConfigStore';
 import { useManagementConnectionStore } from '~/core/stores/managementConnectionStore';
 import { useManagementExplorerStore } from '~/core/stores/managementExplorerStore';
@@ -135,31 +132,8 @@ export function useDataImport() {
         collection => collection !== 'migrationState'
       );
 
-      if (isElectron()) {
-        const electronAPI = (
-          window as Window & {
-            electronAPI?: { persist?: { mergeAll?: unknown } };
-          }
-        ).electronAPI;
-
-        if (typeof electronAPI?.persist?.mergeAll !== 'function') {
-          throw new Error(
-            'Electron restore is unavailable because the preload persist bridge is missing mergeAll(). Restart the app and try again.'
-          );
-        }
-
-        const step = Math.floor(65 / collections.length);
-        for (let i = 0; i < collections.length; i++) {
-          await electronPersistMergeAll(
-            collections[i]!,
-            persist[collections[i]!] ?? []
-          );
-          progress.value = 10 + step * (i + 1);
-        }
-      } else {
-        await importIntoIdb(persist, collections);
-        progress.value = 75;
-      }
+      await importIntoIdb(persist, collections);
+      progress.value = 75;
 
       const mergedMigrationNames = [
         ...new Set([...existingMigrationNames, ...backupSchemaVersion]),
@@ -167,15 +141,6 @@ export function useDataImport() {
 
       if (mergedMigrationNames.length > 0) {
         await migrationStateStorage.save(mergedMigrationNames);
-
-        if (isElectron()) {
-          await electronPersistMergeAll('migrationState', [
-            {
-              id: MIGRATION_STATE_RECORD_ID,
-              names: mergedMigrationNames,
-            },
-          ]);
-        }
       }
 
       try {
@@ -189,16 +154,10 @@ export function useDataImport() {
       progress.value = 90;
 
       const appConfigStore = useAppConfigStore();
-      const agentStore = useAgentStore();
       const hasPersistedAppConfig = (persist.appConfig?.length ?? 0) > 0;
-      const hasPersistedAgentState = (persist.agentState?.length ?? 0) > 0;
 
       if (hasPersistedAppConfig) {
         await appConfigStore.loadPersistData();
-      }
-
-      if (hasPersistedAgentState) {
-        await agentStore.loadPersistData();
       }
 
       if (backupData.localStorage) {

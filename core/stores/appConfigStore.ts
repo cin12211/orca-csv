@@ -3,12 +3,6 @@ import { defineStore } from 'pinia';
 import { ref, computed, reactive, watch } from 'vue';
 import { DEFAULT_EDITOR_CONFIG } from '~/components/base/code-editor/constants';
 import {
-  RawQueryEditorDefaultSize,
-  RawQueryEditorLayout,
-  MAX_CUSTOM_LAYOUTS,
-  type CustomLayoutDefinition,
-} from '~/components/modules/raw-query/constants';
-import {
   DEFAULT_TABLE_APPEARANCE_CONFIGS,
   DEFAULT_CHAT_UI_CONFIG,
 } from '~/components/modules/settings/constants';
@@ -22,12 +16,24 @@ import {
   type TableAppearanceConfigs,
 } from '~/components/modules/settings/types';
 import {
+  RawQueryEditorLayout,
+  type CustomLayoutDefinition,
+} from '~/core/persist/normalize';
+import {
   normalizeAppConfigState,
   type AppConfigPersistedState,
 } from '~/core/persist/store-state';
 import { createStorageApis } from '~/core/storage';
 
 const DEFAULT_APP_LAYOUT_SIZE = [25, 50, 25];
+
+const RawQueryEditorDefaultSize = {
+  content: 70,
+  variables: 30,
+  result: 30,
+} as const;
+
+const MAX_CUSTOM_LAYOUTS = 10;
 
 const intiAppLayout = [30, 70, 0];
 
