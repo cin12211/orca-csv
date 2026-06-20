@@ -1,3 +1,4 @@
+import { MAX_CSV_FILE_SIZE } from '../constants/csv-editor.constants';
 import type { CsvFileHandle } from '@/core/services/csv';
 
 /**
@@ -17,7 +18,7 @@ export async function createCsvFileHandleFromWebDrag(
       const file = await fileHandle.getFile();
 
       if (!file.name.endsWith('.csv')) return null;
-      if (file.size > 50 * 1024 * 1024) return null;
+      if (file.size > MAX_CSV_FILE_SIZE) return null;
 
       return {
         id: `web-${file.name}-${file.lastModified}`,
@@ -35,7 +36,7 @@ export async function createCsvFileHandleFromWebDrag(
   const file = item.getAsFile();
   if (!file) return null;
   if (!file.name.endsWith('.csv')) return null;
-  if (file.size > 50 * 1024 * 1024) return null;
+  if (file.size > MAX_CSV_FILE_SIZE) return null;
 
   return {
     id: `web-${file.name}-${file.lastModified}`,

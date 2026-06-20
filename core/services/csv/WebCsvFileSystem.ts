@@ -4,11 +4,12 @@ import {
   readCsvFile,
   writeCsvFile,
 } from '~/core/composables/useCsvFileSystemAccess';
-import type {
-  CsvFileSystemAPI,
-  CsvFileHandle,
-  FileValidation,
-  FileMetadata,
+import {
+  MAX_CSV_FILE_SIZE,
+  type CsvFileSystemAPI,
+  type CsvFileHandle,
+  type FileValidation,
+  type FileMetadata,
 } from './types';
 
 // Static cache to preserve useFileSystemAccess instances across tab switches/component remounts
@@ -93,8 +94,8 @@ export class WebCsvFileSystem implements CsvFileSystemAPI {
         return { valid: false, error: 'File is not a CSV file' };
       }
 
-      if (file.size > 50 * 1024 * 1024) {
-        return { valid: false, error: 'File is too large (max 50MB)' };
+      if (file.size > MAX_CSV_FILE_SIZE) {
+        return { valid: false, error: 'File is too large (max 200MB)' };
       }
 
       return {

@@ -4,15 +4,15 @@
 
 <template>
   <div
-    class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in select-none"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in select-none"
   >
     <div
-      class="flex flex-col items-center justify-center border-1 border-dashed border-primary/40 rounded-xl bg-card/50 p-8 text-center shadow-2xl transition-all w-[98vw] h-[97vh]"
+      class="flex flex-col items-center justify-center border border-dashed border-primary/40 rounded-xl bg-card/50 p-8 text-center shadow-2xl transition-all w-[98vw] h-[97vh]"
     >
       <Icon name="hugeicons:file-02" class="size-12! text-foreground mb-2" />
       <h4 class="text-lg font-medium text-foreground">Drop CSV File Here</h4>
       <p class="text-sm text-muted-foreground max-w-xs">
-        Release to open and edit this CSV file. Supports files up to 50MB.
+        Release to open and edit this CSV file. Supports files up to 200MB.
       </p>
     </div>
   </div>

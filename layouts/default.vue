@@ -24,7 +24,7 @@ const onDrop = async (files: File[] | null) => {
     const handles = await createCsvFileHandlesFromFiles(files);
     if (handles.length === 0) {
       toast.error(
-        'No valid CSV files found. Only .csv files under 50MB are supported.'
+        'No valid CSV files found. Only .csv files under 200MB are supported.'
       );
       return;
     }

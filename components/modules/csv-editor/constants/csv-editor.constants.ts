@@ -1,5 +1,5 @@
-/** Maximum file size (50MB) */
-export const MAX_CSV_FILE_SIZE = 50 * 1024 * 1024;
+/** Maximum file size (200MB) */
+export const MAX_CSV_FILE_SIZE = 200 * 1024 * 1024;
 
 /** Maximum concurrent open CSV tabs */
 export const MAX_CSV_TABS = 10;

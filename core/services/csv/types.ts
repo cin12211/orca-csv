@@ -1,3 +1,5 @@
+export const MAX_CSV_FILE_SIZE = 200 * 1024 * 1024;
+
 export interface CsvFileHandle {
   id: string;
   name: string;

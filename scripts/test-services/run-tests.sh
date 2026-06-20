@@ -8,9 +8,9 @@
 # Profiles: none | postgres | mysql | mariadb | sql | redis | sqlite | all
 #
 # Examples:
-#   bash scripts/test-services/run-tests.sh --fixtures=postgres -- playwright test --project postgres
+#   bash scripts/test-services/run-tests.sh --fixtures=postgres -- vitest --run --project integration
 #   bash scripts/test-services/run-tests.sh --fixtures=redis -- vitest --run --project integration
-#   bash scripts/test-services/run-tests.sh --fixtures=all -- playwright test
+#   bash scripts/test-services/run-tests.sh --fixtures=all -- vitest --run --project integration
 # ──────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
@@ -110,7 +110,7 @@ trap 'cleanup "$?"' EXIT
 # ─── Run ─────────────────────────────────────────────────────────────────────
 cd "${repo_root}"
 
-# Ensure node_modules binaries (playwright, vitest, etc.) are resolvable
+# Ensure node_modules binaries (vitest, etc.) are resolvable
 # even when this script is invoked directly via bash rather than via bun run.
 export PATH="${repo_root}/node_modules/.bin:${PATH}"
 
