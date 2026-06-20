@@ -1,6 +1,4 @@
 import { ref } from 'vue';
-import { isElectron } from '~/core/helpers/environment';
-import { persistGetAll as electronPersistGetAll } from '~/core/persist/adapters/electron/primitives';
 import { idbGetAll } from '~/core/persist/adapters/idb/primitives';
 import { getApplied } from '~/core/persist/migration';
 import { type PersistCollection } from '~/core/storage/idbRegistry';
@@ -22,10 +20,7 @@ export function useDataExport() {
         exportProgress.value = Math.round((done / total) * 85);
       };
 
-      const loadCollection = isElectron()
-        ? (collection: PersistCollection) =>
-            electronPersistGetAll<unknown>(collection)
-        : (collection: PersistCollection) => idbGetAll<unknown>(collection);
+      const loadCollection = (collection: PersistCollection) => idbGetAll<unknown>(collection);
 
       const persist = await collectBackupPersistData(loadCollection, onStep);
 

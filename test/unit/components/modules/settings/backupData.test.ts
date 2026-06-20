@@ -16,14 +16,10 @@ function createPersist(): Record<PersistCollection, unknown[]> {
   return {
     appConfig: [],
     agentState: [],
-    workspaces: [],
     workspaceState: [],
     connections: [],
     tabViews: [],
     quickQueryLogs: [],
-    rowQueryFiles: [],
-    rowQueryFileContents: [],
-    'environment-tags': [],
     migrationState: [],
   };
 }
@@ -62,10 +58,10 @@ describe('backupData helpers', () => {
 
   it('normalizes missing persist collections to empty arrays', () => {
     expect(
-      normalizeBackupPersistData({ workspaces: [{ id: 'ws-1' }] })
+      normalizeBackupPersistData({ connections: [{ id: 'conn-1' }] })
     ).toEqual({
       ...createEmptyPersistData(),
-      workspaces: [{ id: 'ws-1' }],
+      connections: [{ id: 'conn-1' }],
     });
   });
 
@@ -73,8 +69,8 @@ describe('backupData helpers', () => {
     const backup = createBackupData(
       {
         ...createPersist(),
-        workspaces: [{ id: 'ws-1' }],
         connections: [{ id: 'conn-1' }, { id: 'conn-2' }],
+        tabViews: [{ id: 'tab-1' }],
       },
       ['v1'],
       { sidebar: 'open', theme: 'dark' }
@@ -84,14 +80,10 @@ describe('backupData helpers', () => {
       collections: [
         { collection: 'appConfig', count: 0 },
         { collection: 'agentState', count: 0 },
-        { collection: 'workspaces', count: 1 },
         { collection: 'workspaceState', count: 0 },
         { collection: 'connections', count: 2 },
-        { collection: 'tabViews', count: 0 },
+        { collection: 'tabViews', count: 1 },
         { collection: 'quickQueryLogs', count: 0 },
-        { collection: 'rowQueryFiles', count: 0 },
-        { collection: 'rowQueryFileContents', count: 0 },
-        { collection: 'environment-tags', count: 0 },
         { collection: 'migrationState', count: 0 },
       ],
       totalCollections: 2,

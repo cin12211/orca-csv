@@ -13,11 +13,6 @@ export const AGENT_STATE_IDB = {
   storeName: 'agentState',
 } as const satisfies IDBStoreConfig;
 
-export const WORKSPACE_IDB = {
-  dbName: 'workspaceIDB',
-  storeName: 'workspaces',
-} as const satisfies IDBStoreConfig;
-
 export const WORKSPACE_STATE_IDB = {
   dbName: 'workspaceStateIDB',
   storeName: 'workspaceState',
@@ -38,21 +33,6 @@ export const QUICK_QUERY_LOG_IDB = {
   storeName: 'quickQueryLogs',
 } as const satisfies IDBStoreConfig;
 
-export const ROW_QUERY_FILE_IDB = {
-  dbName: 'rowQueryFileIDBStore',
-  storeName: 'rowQueryFiles',
-} as const satisfies IDBStoreConfig;
-
-export const ROW_QUERY_FILE_CONTENT_IDB = {
-  dbName: 'rowQueryFileContentIDBStore',
-  storeName: 'rowQueryFileContents',
-} as const satisfies IDBStoreConfig;
-
-export const ENVIRONMENT_TAG_IDB = {
-  dbName: 'environmentTagIDB',
-  storeName: 'environmentTags',
-} as const satisfies IDBStoreConfig;
-
 export const MIGRATION_STATE_IDB = {
   dbName: 'migrationStateIDB',
   storeName: 'migrationState',
@@ -61,14 +41,10 @@ export const MIGRATION_STATE_IDB = {
 export const PERSIST_COLLECTIONS = [
   'appConfig',
   'agentState',
-  'workspaces',
   'workspaceState',
   'connections',
   'tabViews',
   'quickQueryLogs',
-  'rowQueryFiles',
-  'rowQueryFileContents',
-  'environment-tags',
   'migrationState',
 ] as const;
 
@@ -81,13 +57,9 @@ export type ElectronPersistCollection = PersistCollection;
 export const PERSIST_IDB_STORES = {
   appConfig: APP_CONFIG_IDB,
   agentState: AGENT_STATE_IDB,
-  workspaces: WORKSPACE_IDB,
   workspaceState: WORKSPACE_STATE_IDB,
   connections: CONNECTION_IDB,
   tabViews: TAB_VIEW_IDB,
   quickQueryLogs: QUICK_QUERY_LOG_IDB,
-  rowQueryFiles: ROW_QUERY_FILE_IDB,
-  rowQueryFileContents: ROW_QUERY_FILE_CONTENT_IDB,
-  'environment-tags': ENVIRONMENT_TAG_IDB,
   migrationState: MIGRATION_STATE_IDB,
 } as const satisfies Record<PersistCollection, IDBStoreConfig>;

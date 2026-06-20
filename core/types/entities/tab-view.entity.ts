@@ -99,6 +99,7 @@ export interface CsvEditorMetadata extends BaseTabMetadata {
   hasHeaders?: boolean;
   encoding?: string;
   rowCount?: number;
+  columnCount?: number;
   lastModified?: number;
   _webHandle?: FileSystemFileHandle;
 }

@@ -1,6 +1,4 @@
-import type { Connection } from '~/core/stores';
-
-export function getConnectionParams(connection?: Connection) {
+export function getConnectionParams(connection?: any) {
   if (!connection) return {};
 
   return {

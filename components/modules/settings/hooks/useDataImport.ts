@@ -10,15 +10,7 @@ import {
   type PersistCollection,
 } from '~/core/storage/idbRegistry';
 import { useAppConfigStore } from '~/core/stores/appConfigStore';
-import { useManagementConnectionStore } from '~/core/stores/managementConnectionStore';
-import { useManagementExplorerStore } from '~/core/stores/managementExplorerStore';
-import { useActivityBarStore } from '~/core/stores/useActivityBarStore';
-import { useEnvironmentTagStore } from '~/core/stores/useEnvironmentTagStore';
-import { useExplorerFileStore } from '~/core/stores/useExplorerFileStore';
-import { useQuickQueryLogs } from '~/core/stores/useQuickQueryLogs';
 import { useTabViewsStore } from '~/core/stores/useTabViewsStore';
-import { useWSStateStore } from '~/core/stores/useWSStateStore';
-import { useWorkspacesStore } from '~/core/stores/useWorkspacesStore';
 import {
   getBackupSchemaVersion,
   isBackupData,
@@ -162,30 +154,14 @@ export function useDataImport() {
 
       if (backupData.localStorage) {
         mergeLocalStorageSnapshot(backupData.localStorage);
-
-        const activityBarStore = useActivityBarStore();
-        const managementExplorerStore = useManagementExplorerStore();
-        (activityBarStore as HydratableStore).$hydrate?.();
-        (managementExplorerStore as HydratableStore).$hydrate?.();
       }
 
       progress.value = 100;
       success.value = true;
 
-      const workspaceStore = useWorkspacesStore();
-      const connectionStore = useManagementConnectionStore();
-      const wsStateStore = useWSStateStore();
       const tabViewsStore = useTabViewsStore();
 
-      const environmentTagStore = useEnvironmentTagStore();
-
-      await Promise.all([
-        workspaceStore.loadPersistData(),
-        connectionStore.loadPersistData(),
-        wsStateStore.loadPersistData(),
-        tabViewsStore.loadPersistData(),
-        environmentTagStore.loadTags(),
-      ]);
+      await tabViewsStore.loadPersistData();
     } catch (e) {
       error.value =
         e instanceof Error ? e.message : 'Import failed. Please try again.';

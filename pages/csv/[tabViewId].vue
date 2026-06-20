@@ -25,19 +25,15 @@ const fileHandle = computed<CsvFileHandle | null>(() => {
 
   const meta = tabView.value.metadata as any;
 
-  const isElectronPlatform = !!meta._electronPath || !!meta.filePath;
-  const platform = isElectronPlatform ? 'electron' : 'web';
+  const platform = 'web';
 
   const handle: CsvFileHandle = {
-    id: isElectronPlatform
-      ? `electron-${meta.filePath}`
-      : `web-${tabViewId.value}`,
+    id: `web-${tabViewId.value}`,
     name: meta.fileName,
     path: meta.filePath,
     size: meta.fileSize ?? 0,
     lastModified: meta.lastModified ?? Date.now(),
     platform,
-    _electronPath: meta._electronPath || meta.filePath,
     _webHandle: meta._webHandle,
     _file: meta._file,
     _cachedContent: meta.cachedContent,

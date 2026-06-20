@@ -1,8 +1,7 @@
-import { defineStore, storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { defineStore } from 'pinia';
+import { ref, computed, watch } from 'vue';
 import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder';
 import type { RoutesNamesList } from '@typed-router/__routes';
-import { useWorkspaceConnectionRoute } from '~/core/composables/useWorkspaceConnectionRoute';
 import { createStorageApis } from '~/core/storage';
 import {
   TabViewType,
@@ -18,7 +17,6 @@ import {
   type TabView as SharedTabView,
   type ViewDetailMetadata,
 } from '~/core/types/entities/tab-view.entity';
-import { useWSStateStore } from './useWSStateStore';
 
 export { TabViewType };
 export type {
@@ -43,15 +41,25 @@ export const useTabViewsStore = defineStore(
   'tab-views',
   () => {
     const storageApis = createStorageApis();
-    const wsStateStore = useWSStateStore();
-    const { workspaceId, connectionId } = useWorkspaceConnectionRoute();
-    const { tabViewId } = storeToRefs(wsStateStore);
+    const route = useRoute();
 
     const tabViews = ref<TabView[]>([]);
     const activeTabId = ref<string | undefined>(undefined);
 
+    watch(
+      () => route.params.tabViewId,
+      (newId) => {
+        if (newId) {
+          activeTabId.value = newId as string;
+        } else {
+          activeTabId.value = undefined;
+        }
+      },
+      { immediate: true }
+    );
+
     const effectiveTabViewId = computed(
-      () => activeTabId.value ?? tabViewId.value
+      () => activeTabId.value
     );
 
     const activeTab = computed(() =>
@@ -61,19 +69,7 @@ export const useTabViewsStore = defineStore(
     const isLoading = ref(false);
 
     const onSetTabId = async (tabId?: string) => {
-      if (!workspaceId.value || !connectionId.value) {
-        const existingTab = tabId ? getTabById(tabId) : undefined;
-        if (existingTab) {
-          activeTabId.value = tabId;
-        }
-        return;
-      }
-
-      await wsStateStore.setTabViewId({
-        connectionId: connectionId.value,
-        workspaceId: workspaceId.value,
-        tabViewId: tabId,
-      });
+      activeTabId.value = tabId;
     };
 
     const logMissingTab = (tabId: string) => {
@@ -87,10 +83,8 @@ export const useTabViewsStore = defineStore(
       tabViews.value.findIndex(tab => tab.id === tabId);
 
     const getDeletePayload = (
-      tab: Pick<TabView, 'connectionId' | 'schemaId' | 'id'>
+      tab: Pick<TabView, 'id'>
     ) => ({
-      connectionId: tab.connectionId,
-      schemaId: tab.schemaId,
       id: tab.id,
     });
 
@@ -103,26 +97,8 @@ export const useTabViewsStore = defineStore(
       tabViews.value = tabViews.value.filter(tab => !tabIdsSet.has(tab.id));
     };
 
-    const navigateToConnectionRoot = async (params?: {
-      workspaceId?: string;
-      connectionId?: string;
-    }) => {
-      const nextWorkspaceId = params?.workspaceId ?? workspaceId.value;
-      const nextConnectionId = params?.connectionId ?? connectionId.value;
-
-      if (!nextWorkspaceId || !nextConnectionId) {
-        await navigateTo('/', { replace: true });
-        return;
-      }
-
-      await navigateTo({
-        name: 'workspaceId-connectionId',
-        params: {
-          workspaceId: nextWorkspaceId,
-          connectionId: nextConnectionId,
-        },
-        replace: true,
-      });
+    const navigateToConnectionRoot = async () => {
+      await navigateTo('/', { replace: true });
     };
 
     const scrollTabIntoView = async (tabId: string) => {
@@ -170,10 +146,7 @@ export const useTabViewsStore = defineStore(
       }
 
       await onSetTabId(undefined);
-      await navigateToConnectionRoot({
-        workspaceId: tab.workspaceId,
-        connectionId: tab.connectionId,
-      });
+      await navigateToConnectionRoot();
     };
 
     const openTab = async (tab: Omit<TabView, 'index'>) => {
@@ -218,12 +191,6 @@ export const useTabViewsStore = defineStore(
         const params: Record<string, any> = {
           ...tab.routeParams,
         };
-        if (tab.workspaceId) {
-          params.workspaceId = tab.workspaceId;
-        }
-        if (tab.connectionId) {
-          params.connectionId = tab.connectionId;
-        }
 
         await navigateTo({
           name: tab.routeName,
@@ -313,10 +280,7 @@ export const useTabViewsStore = defineStore(
           await selectTab(adjacentTab.id);
         } else {
           await onSetTabId(undefined);
-          await navigateToConnectionRoot({
-            workspaceId: tabsToRemove[0].workspaceId,
-            connectionId: tabsToRemove[0].connectionId,
-          });
+          await navigateToConnectionRoot();
         }
       }
 
@@ -367,36 +331,25 @@ export const useTabViewsStore = defineStore(
     };
 
     const loadPersistData = async () => {
-      if (!connectionId.value || !workspaceId.value) {
-        // console.error('connectionId or workspaceId not found');
-        return;
-      }
-
-      const load = await storageApis.tabViewStorage.getByContext({
-        connectionId: connectionId.value,
-        workspaceId: workspaceId.value,
-      });
+      const load = await storageApis.tabViewStorage.getAll();
       tabViews.value = (load ?? []) as TabView[];
     };
 
-    // loadPersistData();
+    loadPersistData();
 
-    watch(
-      () => [connectionId.value, workspaceId.value],
-      async ([connId, wsId]) => {
-        if (connId && wsId) {
-          await loadPersistData();
-        }
-      },
-      { immediate: true }
-    );
+    // watch(
+    //   () => [connectionId.value, workspaceId.value],
+    //   async ([connId, wsId]) => {
+    //     if (connId && wsId) {
+    //       await loadPersistData();
+    //     }
+    //   },
+    //   { immediate: true }
+    // );
 
-    const onActiveCurrentTab = async (connectionId: string) => {
+    const onActiveCurrentTab = async (_connectionId?: string) => {
       if (!effectiveTabViewId.value) {
-        await navigateToConnectionRoot({
-          workspaceId: workspaceId.value || '',
-          connectionId,
-        });
+        await navigateToConnectionRoot();
 
         console.error('tabViewId not found');
         return;

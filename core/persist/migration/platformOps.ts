@@ -1,8 +1,3 @@
-import { isElectron } from '~/core/helpers/environment';
-import {
-  persistGetAll as electronGetAll,
-  persistReplaceAll as electronReplaceAll,
-} from '~/core/persist/adapters/electron/primitives';
 import {
   idbGetAll,
   idbReplaceAll,
@@ -16,11 +11,5 @@ export type ReplaceAll = <T extends { id: string }>(
 ) => Promise<void>;
 
 export function getPlatformOps(): { getAll: GetAll; replaceAll: ReplaceAll } {
-  if (isElectron()) {
-    return {
-      getAll: electronGetAll as GetAll,
-      replaceAll: electronReplaceAll as unknown as ReplaceAll,
-    };
-  }
   return { getAll: idbGetAll, replaceAll: idbReplaceAll };
 }

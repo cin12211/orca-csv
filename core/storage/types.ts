@@ -1,30 +1,15 @@
 import type { DeleteTabViewProps } from '~/core/persist/types';
 import type {
-  Workspace,
   Connection,
   WorkspaceState,
   TabView,
   QuickQueryLog,
-  RowQueryFile,
-  RowQueryFileContent,
-  EnvironmentTag,
   AppConfigPersistedState,
   AgentPersistedState,
   MigrationState,
 } from '~/core/types/entities';
 
-// ── 4.1 WorkspaceStorageApi ───────────────────────────────────────────────────
-
-export interface WorkspaceStorageApi {
-  getAll(): Promise<Workspace[]>;
-  getOne(id: string): Promise<Workspace | null>;
-  create(ws: Workspace): Promise<Workspace>;
-  update(ws: Workspace): Promise<Workspace | null>;
-  /** Cascade: deletes connections, states, logs, files for the workspace */
-  delete(id: string): Promise<Workspace | null>;
-}
-
-// ── 4.2 ConnectionStorageApi ──────────────────────────────────────────────────
+// ── 4.1 ConnectionStorageApi ──────────────────────────────────────────────────
 
 export interface ConnectionStorageApi {
   getAll(): Promise<Connection[]>;
@@ -35,7 +20,7 @@ export interface ConnectionStorageApi {
   delete(id: string): Promise<Connection | null | void>;
 }
 
-// ── 4.3 WorkspaceStateStorageApi ─────────────────────────────────────────────
+// ── 4.2 WorkspaceStateStorageApi ─────────────────────────────────────────────
 
 export interface WorkspaceStateStorageApi {
   getAll(): Promise<WorkspaceState[]>;
@@ -44,7 +29,7 @@ export interface WorkspaceStateStorageApi {
   delete(id: string): Promise<WorkspaceState | null | void>;
 }
 
-// ── 4.4 TabViewStorageApi ─────────────────────────────────────────────────────
+// ── 4.3 TabViewStorageApi ─────────────────────────────────────────────────────
 
 export interface TabViewStorageApi {
   getAll(): Promise<TabView[]>;
@@ -59,7 +44,7 @@ export interface TabViewStorageApi {
   replaceAll(tabs: TabView[]): Promise<void>;
 }
 
-// ── 4.5 QuickQueryLogStorageApi ───────────────────────────────────────────────
+// ── 4.4 QuickQueryLogStorageApi ───────────────────────────────────────────────
 
 export interface QuickQueryLogStorageApi {
   getAll(): Promise<QuickQueryLog[]>;
@@ -73,33 +58,7 @@ export interface QuickQueryLogStorageApi {
   ): Promise<void>;
 }
 
-// ── 4.6 RowQueryFileStorageApi ────────────────────────────────────────────────
-
-export interface RowQueryFileStorageApi {
-  getAllFiles(): Promise<RowQueryFile[]>;
-  getFilesByContext(ctx: { workspaceId: string }): Promise<RowQueryFile[]>;
-  createFiles(file: RowQueryFile): Promise<RowQueryFile>;
-  updateFile(
-    file: Partial<RowQueryFile> & { id: string }
-  ): Promise<RowQueryFile | null>;
-  updateFileContent(content: RowQueryFileContent): Promise<void>;
-  getFileContentById(id: string): Promise<RowQueryFileContent | null>;
-  deleteFile(props: { id: string }): Promise<void>;
-  deleteFileByWorkspaceId(props: { wsId: string }): Promise<void>;
-}
-
-// ── 4.7 EnvironmentTagStorageApi ──────────────────────────────────────────────
-
-export interface EnvironmentTagStorageApi {
-  getAll(): Promise<EnvironmentTag[]>;
-  getOne(id: string): Promise<EnvironmentTag | null>;
-  create(tag: EnvironmentTag): Promise<EnvironmentTag>;
-  update(tag: EnvironmentTag): Promise<EnvironmentTag | null>;
-  delete(id: string): Promise<EnvironmentTag | null>;
-  replaceAll(tags: EnvironmentTag[]): Promise<void>;
-}
-
-// ── 4.8 AppConfigStorageApi (single-record) ────────────────────────────────────
+// ── 4.5 AppConfigStorageApi (single-record) ────────────────────────────────────
 
 export interface AppConfigStorageApi {
   get(): Promise<AppConfigPersistedState>; // never returns null
@@ -107,7 +66,7 @@ export interface AppConfigStorageApi {
   delete(): Promise<void>;
 }
 
-// ── 4.9 AgentStateStorageApi (single-record) ───────────────────────────────────
+// ── 4.6 AgentStateStorageApi (single-record) ───────────────────────────────────
 
 export interface AgentStateStorageApi {
   get(): Promise<AgentPersistedState>; // never returns null
@@ -115,11 +74,11 @@ export interface AgentStateStorageApi {
   delete(): Promise<void>;
 }
 
-// ── 4.10 QueryBuilderStateStorageApi ──────────────────────────────────────────
+// ── 4.7 QueryBuilderStateStorageApi ──────────────────────────────────────────
 // QB state is persisted directly in localStorage by useTableQueryBuilder.
 // No storage API layer needed.
 
-// ── 4.11 MigrationStateStorageApi ────────────────────────────────────────────
+// ── 4.8 MigrationStateStorageApi ────────────────────────────────────────────
 
 export interface MigrationStateStorageApi {
   get(): Promise<MigrationState | null>;
@@ -130,13 +89,10 @@ export interface MigrationStateStorageApi {
 // ── 5. StorageApis — Factory Return Type ──────────────────────────────────────
 
 export interface StorageApis {
-  workspaceStorage: WorkspaceStorageApi;
   connectionStorage: ConnectionStorageApi;
   workspaceStateStorage: WorkspaceStateStorageApi;
   tabViewStorage: TabViewStorageApi;
   quickQueryLogStorage: QuickQueryLogStorageApi;
-  rowQueryFileStorage: RowQueryFileStorageApi;
-  environmentTagStorage: EnvironmentTagStorageApi;
   appConfigStorage: AppConfigStorageApi;
   agentStorage: AgentStateStorageApi;
   migrationStateStorage: MigrationStateStorageApi;

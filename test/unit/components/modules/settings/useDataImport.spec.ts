@@ -11,7 +11,6 @@ const {
   migrationStateGetMock,
   migrationStateSaveMock,
   loadPersistDataMock,
-  loadTagsMock,
   storageSetItemMock,
 } = vi.hoisted(() => ({
   idbMergeAllMock: vi.fn(),
@@ -20,7 +19,6 @@ const {
   migrationStateGetMock: vi.fn(),
   migrationStateSaveMock: vi.fn(),
   loadPersistDataMock: vi.fn(),
-  loadTagsMock: vi.fn(),
   storageSetItemMock: vi.fn(),
 }));
 
@@ -86,16 +84,6 @@ vi.mock('~/core/stores/useActivityBarStore', () => ({
   }),
 }));
 
-vi.mock('~/core/stores/useEnvironmentTagStore', () => ({
-  useEnvironmentTagStore: () => ({
-    loadTags: loadTagsMock,
-  }),
-}));
-
-vi.mock('~/core/stores/useExplorerFileStore', () => ({
-  useExplorerFileStore: () => ({}),
-}));
-
 vi.mock('~/core/stores/useQuickQueryLogs', () => ({
   useQuickQueryLogs: () => ({}),
 }));
@@ -112,12 +100,6 @@ vi.mock('~/core/stores/useWSStateStore', () => ({
   }),
 }));
 
-vi.mock('~/core/stores/useWorkspacesStore', () => ({
-  useWorkspacesStore: () => ({
-    loadPersistData: loadPersistDataMock,
-  }),
-}));
-
 describe('useDataImport', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -130,7 +112,6 @@ describe('useDataImport', () => {
     migrationStateGetMock.mockResolvedValue(null);
     migrationStateSaveMock.mockResolvedValue(undefined);
     loadPersistDataMock.mockResolvedValue(undefined);
-    loadTagsMock.mockResolvedValue(undefined);
     storageSetItemMock.mockReset();
     idbMergeAllMock.mockImplementation(async (_collection, values) => {
       expect(isProxy(values)).toBe(false);
@@ -144,7 +125,7 @@ describe('useDataImport', () => {
   it('keeps staged backup data plain through confirmation before writing to IDB', async () => {
     const backup = JSON.stringify({
       persist: {
-        workspaces: [{ id: 'ws-1', name: 'Workspace 1' }],
+        connections: [{ id: 'conn-1', name: 'Connection 1' }],
       },
       schemaVersion: [],
     });
@@ -159,8 +140,8 @@ describe('useDataImport', () => {
 
     expect(dataImport.error.value).toBeNull();
     expect(dataImport.success.value).toBe(true);
-    expect(idbMergeAllMock).toHaveBeenCalledWith('workspaces', [
-      { id: 'ws-1', name: 'Workspace 1' },
+    expect(idbMergeAllMock).toHaveBeenCalledWith('connections', [
+      { id: 'conn-1', name: 'Connection 1' },
     ]);
   });
 
@@ -180,6 +161,6 @@ describe('useDataImport', () => {
 
     expect(dataImport.error.value).toBeNull();
     expect(dataImport.success.value).toBe(true);
-    expect(idbMergeAllMock).toHaveBeenCalledTimes(10);
+    expect(idbMergeAllMock).toHaveBeenCalledTimes(6);
   });
 });

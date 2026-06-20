@@ -14,21 +14,6 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     componentKey: SettingsComponentKey.AppearanceConfig,
   },
   {
-    name: 'Quick Query',
-    icon: 'hugeicons:grid-table',
-    componentKey: SettingsComponentKey.QuickQueryConfig,
-  },
-  {
-    name: 'Agent',
-    icon: 'hugeicons:chat-bot',
-    componentKey: SettingsComponentKey.AgentConfig,
-  },
-  {
-    name: 'Environment Tags',
-    icon: 'hugeicons:tag-01',
-    componentKey: SettingsComponentKey.EnvironmentTagsConfig,
-  },
-  {
     name: 'Backup & Restore',
     icon: 'hugeicons:file-management',
     componentKey: SettingsComponentKey.BackupRestoreConfig,

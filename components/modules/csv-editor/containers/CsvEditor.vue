@@ -8,7 +8,6 @@ import type { CsvFileHandle } from '@/core/services/csv';
 import { createCsvFileSystemForHandle } from '@/core/services/csv';
 import { Button } from '~/components/ui/button';
 import { HASH_INDEX_ID } from '~/core/constants';
-import { isElectron } from '~/core/helpers/environment';
 import { useTabViewsStore } from '~/core/stores/useTabViewsStore';
 import { CsvEditorControlBar, CsvEditorTable, CsvFilter } from '../components';
 import { CsvFilterCompose } from '../constants/csv-filter.constants';
@@ -144,17 +143,6 @@ const {
   },
   csvFileSystem,
   onSaveSuccess: () => {
-    if (tabViewId.value) {
-      void tabViewsStore.updateTabMetadata(
-        tabViewId.value,
-        {
-          fileName: props.fileHandle.name,
-          fileSize: props.fileHandle.size,
-          lastModified: props.fileHandle.lastModified,
-        },
-        props.fileHandle.name
-      );
-    }
     // Refresh table and data after save
     loadCsvData();
     isFileModifiedExternally.value = false;
@@ -248,6 +236,27 @@ watch(delimiterRef, () => {
   loadCsvData();
   clearEdits();
 });
+
+// Update tab metadata with rowCount and columnCount once loaded/changed
+watch(
+  [rowCount, columnCount, () => props.fileHandle.size, () => props.fileHandle.lastModified],
+  ([newRowCount, newColumnCount, newSize, newLastModified]) => {
+    if (tabViewId.value) {
+      void tabViewsStore.updateTabMetadata(
+        tabViewId.value,
+        {
+          fileName: props.fileHandle.name,
+          fileSize: newSize,
+          lastModified: newLastModified,
+          rowCount: newRowCount,
+          columnCount: newColumnCount,
+        },
+        props.fileHandle.name
+      );
+    }
+  },
+  { immediate: true }
+);
 
 function onSelectionChanged(rows: any[]) {
   selectedRows.value = rows;
@@ -405,17 +414,12 @@ function handleChangeComposeWith(val: CsvFilterCompose) {
     <!-- Control Bar -->
     <div class="px-1">
       <CsvEditorControlBar
-        :file-name="fileHandle.name"
-        :file-size="fileHandle.size"
-        :last-modified="fileHandle.lastModified"
         :has-changes="hasChanges"
         :is-saving="isSaving"
         :has-selection="canDeleteSelectedRows"
         :is-read-only="isReadOnly"
         :pending-changes-count="pendingChangesInControlBar"
         :selected-rows-count="selectedRows.length"
-        :row-count="rowCount"
-        :column-count="columnCount"
         v-model:has-headers="hasHeadersRef"
         v-model:delimiter="delimiterRef"
         @save="onSaveData"

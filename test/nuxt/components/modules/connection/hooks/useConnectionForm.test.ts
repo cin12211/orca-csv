@@ -20,12 +20,6 @@ vi.mock('~/components/modules/connection/services/connection.service', () => ({
   },
 }));
 
-vi.mock('@/components/modules/environment-tag', () => ({
-  useEnvironmentTagStore: () => ({
-    tags: [],
-  }),
-}));
-
 // ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------

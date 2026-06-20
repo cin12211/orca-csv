@@ -10,8 +10,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { isElectron } from '~/core/helpers/environment';
-
 const props = defineProps<{
   open: boolean;
   unknownMigrations: string[];
@@ -23,17 +21,8 @@ const emit = defineEmits<{
 
 const GITHUB_RELEASES_URL = 'https://github.com/orcaQ/orcaq/releases/latest';
 
-type ElectronUpdaterWindow = Window & {
-  electronAPI?: { updater?: { check: () => Promise<unknown> } };
-};
-
 const handleUpdateClick = () => {
-  const api = (window as ElectronUpdaterWindow).electronAPI?.updater;
-  if (isElectron() && api) {
-    api.check();
-  } else {
-    window.open(GITHUB_RELEASES_URL, '_blank', 'noopener,noreferrer');
-  }
+  window.open(GITHUB_RELEASES_URL, '_blank', 'noopener,noreferrer');
   emit('update:open', false);
 };
 </script>

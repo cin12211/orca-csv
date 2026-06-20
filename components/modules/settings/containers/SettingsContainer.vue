@@ -10,25 +10,19 @@ import {
   DialogContent,
   Icon,
 } from '#components';
-import { TagManagementContainer } from '@/components/modules/environment-tag';
 import { useSettingsModal } from '~/core/contexts/useSettingsModal';
 import {
-  AgentConfig,
   AppearanceConfig,
   BackupRestoreConfig,
-  QuickQueryConfig,
   TableAppearanceConfig,
 } from '../components';
 import { SETTINGS_NAV_ITEMS } from '../constants';
 import { SettingsComponentKey } from '../types';
 
-const SETTINGS_COMPONENTS: Record<SettingsComponentKey, Component> = {
-  QuickQueryConfig,
-  AgentConfig,
+const SETTINGS_COMPONENTS: Partial<Record<SettingsComponentKey, Component>> = {
   AppearanceConfig,
   TableAppearanceConfig,
   BackupRestoreConfig,
-  EnvironmentTagsConfig: TagManagementContainer,
 };
 
 const settingNavs = SETTINGS_NAV_ITEMS.map(item => ({

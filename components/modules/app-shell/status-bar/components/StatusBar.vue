@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia';
 import { useChangelogModal } from '~/core/contexts/useChangelogModal';
 import { useSettingsModal } from '~/core/contexts/useSettingsModal';
+import { formatBytes } from '~/core/helpers';
 import { TabViewType } from '~/core/stores';
 import { useTabViewsStore } from '~/core/stores/useTabViewsStore';
 
@@ -76,15 +77,37 @@ const formattedTabType = computed(() => {
       </Tooltip>
     </div>
 
+    <!-- center info file -->
     <div
       class="min-w-0 flex-1 truncate text-muted-foreground text-xs"
       v-if="activeTab"
     >
-      {{ formattedTabType }}:
-      <p class="text-foreground inline">
-        {{ activeTab?.schemaId ? `${activeTab?.schemaId}.` : ''
-        }}{{ activeTab?.name }}
-      </p>
+      <template
+        v-if="activeTab.type === TabViewType.CSVEditor && activeTab.metadata"
+      >
+        <div class="flex items-center gap-3">
+          <span
+            class="font-normal text-foreground truncate"
+            :title="activeTab.metadata.fileName"
+          >
+            {{ activeTab.metadata.fileName }}
+          </span>
+          <span v-if="activeTab.metadata.fileSize" class="text-xs">{{
+            formatBytes(activeTab.metadata.fileSize)
+          }}</span>
+          <span class="text-xs">
+            {{ activeTab.metadata.rowCount ?? 0 }} ×
+            {{ activeTab.metadata.columnCount ?? 0 }}
+          </span>
+        </div>
+      </template>
+      <template v-else>
+        {{ formattedTabType }}:
+        <p class="text-foreground inline">
+          {{ activeTab?.schemaId ? `${activeTab?.schemaId}.` : ''
+          }}{{ activeTab?.name }}
+        </p>
+      </template>
     </div>
 
     <div class="flex flex-shrink-0 items-center gap-3">

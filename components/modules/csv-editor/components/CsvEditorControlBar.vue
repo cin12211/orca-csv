@@ -27,17 +27,12 @@ const DELIMITER_OPTIONS = [
 ] as const;
 
 const props = defineProps<{
-  fileName?: string;
-  fileSize?: number;
-  lastModified?: number;
   hasChanges: boolean;
   isSaving: boolean;
   hasSelection: boolean;
   isReadOnly: boolean;
   pendingChangesCount: number;
   selectedRowsCount: number;
-  rowCount: number;
-  columnCount: number;
   hasHeaders: boolean;
   delimiter: string;
 }>();
@@ -90,14 +85,7 @@ const currentDelimiterLabel = computed(
     props.delimiter
 );
 
-function formatBytes(bytes?: number): string {
-  if (bytes === undefined || bytes === null || isNaN(bytes)) return '';
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-}
+
 </script>
 
 <template>
@@ -212,39 +200,18 @@ function formatBytes(bytes?: number): string {
       </p>
     </div>
 
-    <!-- Center: file meta -->
-    <div
-      v-if="fileName"
-      class="flex items-center gap-3 text-xs text-muted-foreground"
-    >
-      <span
-        class="font-medium text-foreground max-w-[160px] truncate"
-        :title="fileName"
-      >
-        {{ fileName }}
-      </span>
-      <span v-if="fileSize" class="text-[10px]">{{
-        formatBytes(fileSize)
-      }}</span>
-      <span class="text-[10px] font-mono text-foreground/70">
-        {{ rowCount }} × {{ columnCount }}
-      </span>
-    </div>
+
 
     <!-- Right: options -->
     <div class="flex items-center gap-1">
       <!-- Has-headers toggle -->
       <Tooltip>
         <TooltipTrigger as-child>
-          <Button
-            variant="ghost"
-            size="xxs"
-            class="gap-1.5 font-normal"
-            @click="localHasHeaders = !localHasHeaders"
-          >
+          <div class="flex items-center gap-1 cursor-pointer">
             <Checkbox
               id="has-headers-cb"
-              :checked="localHasHeaders"
+              :model-value="localHasHeaders"
+              :updated-value="localHasHeaders"
               class="pointer-events-none size-3!"
             />
             <Label
@@ -253,7 +220,7 @@ function formatBytes(bytes?: number): string {
             >
               Headers
             </Label>
-          </Button>
+          </div>
         </TooltipTrigger>
         <TooltipContent><p>Toggle first-row headers</p></TooltipContent>
       </Tooltip>

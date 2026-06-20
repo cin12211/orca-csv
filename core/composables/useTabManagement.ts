@@ -1,12 +1,6 @@
-import { storeToRefs } from 'pinia';
 import type { RoutesNamesList } from '@typed-router/__routes';
 import { useWorkspaceConnectionRoute } from '~/core/composables/useWorkspaceConnectionRoute';
 import { TabViewType, useTabViewsStore } from '~/core/stores/useTabViewsStore';
-import { useWSStateStore } from '~/core/stores/useWSStateStore';
-import {
-  useWorkspacesStore,
-  type Workspace,
-} from '~/core/stores/useWorkspacesStore';
 
 export interface OpenTabOptions {
   id: string;
@@ -30,10 +24,7 @@ export function resolveRouteNameForTabType(type: TabViewType): RoutesNamesList {
 
 export const useTabManagement = () => {
   const tabViewStore = useTabViewsStore();
-  const wsStateStore = useWSStateStore();
   const { workspaceId, connectionId } = useWorkspaceConnectionRoute();
-  const workspacesStore = useWorkspacesStore();
-  const { schemaId } = storeToRefs(wsStateStore);
 
   const openCsvEditorTab = async (params: {
     filePath?: string;
@@ -44,28 +35,7 @@ export const useTabManagement = () => {
     fileHandle?: any;
     cachedContent?: string;
   }) => {
-    let targetWorkspaceId = workspaceId.value;
-
-    if (!targetWorkspaceId) {
-      const sortedWorkspaces = [...workspacesStore.workspaces].sort((a, b) => {
-        const aTime = a.lastOpened || a.createdAt;
-        const bTime = b.lastOpened || b.createdAt;
-        return new Date(bTime).getTime() - new Date(aTime).getTime();
-      });
-
-      if (sortedWorkspaces.length > 0) {
-        targetWorkspaceId = sortedWorkspaces[0].id;
-      } else {
-        const newWorkspace: Workspace = {
-          id: crypto.randomUUID(),
-          icon: 'hugeicons:folder',
-          name: 'My CSVs',
-          createdAt: new Date().toISOString(),
-        };
-        await workspacesStore.createWorkspace(newWorkspace);
-        targetWorkspaceId = newWorkspace.id;
-      }
-    }
+    const targetWorkspaceId = workspaceId.value ?? '';
 
     const fileHandle = params.fileHandle;
     const filePath = fileHandle?.path ?? params.filePath;
@@ -100,7 +70,7 @@ export const useTabManagement = () => {
         tabViewId: tabId,
       },
       connectionId: targetConnectionId,
-      schemaId: schemaId.value || '',
+      schemaId: '',
       workspaceId: targetWorkspaceId,
       metadata: {
         type: TabViewType.CSVEditor,

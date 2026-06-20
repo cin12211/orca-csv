@@ -3,15 +3,10 @@
 import { LoadingOverlay, MigrationScreen, TooltipProvider } from '#components';
 import { CommandPaletteView } from '@/components/modules/command-palette';
 import { useMigrationState } from '~/core/composables/useMigrationState';
-import {
-  StrictModeConfirmDialog,
-  useStrictModeGuardState,
-} from './components/modules/environment-tag';
 import Settings from './components/modules/settings';
 import { Toaster } from './components/ui/sonner';
 import { useAppearance } from './core/composables/useAppearance';
 import { DEFAULT_DEBOUNCE_INPUT } from './core/constants';
-import { useAppContext } from './core/contexts';
 import { useChangelogModal } from './core/contexts/useChangelogModal';
 import { useSettingsModal } from './core/contexts/useSettingsModal';
 
@@ -21,18 +16,10 @@ import { useSettingsModal } from './core/contexts/useSettingsModal';
 
 // Analytics initialization load in plugins/03.analytics.client.ts
 
-const {
-  strictModeDialogOpen,
-  activeStrictModeTags,
-  confirmStrictModeDialog,
-  cancelStrictModeDialog,
-} = useStrictModeGuardState();
-
 const appLoading = useAppLoading();
 const { isLoading } = useLoadingIndicator();
 const { isBlocking: isMigrating } = useMigrationState();
 
-const { connectToConnection } = useAppContext();
 const { openSettings } = useSettingsModal();
 
 useAppearance();
@@ -65,12 +52,6 @@ onMounted(async () => {
 
     <CommandPaletteView />
     <Settings />
-    <StrictModeConfirmDialog
-      :open="strictModeDialogOpen"
-      :strict-tags="activeStrictModeTags"
-      @confirm="confirmStrictModeDialog"
-      @cancel="cancelStrictModeDialog"
-    />
     <Toaster position="top-right" :close-button="true" />
   </ClientOnly>
 </template>

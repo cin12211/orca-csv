@@ -1,10 +1,4 @@
-import {
-  useAppConfigStore,
-  useEnvironmentTagStore,
-  useWorkspacesStore,
-  useManagementConnectionStore,
-  useWSStateStore,
-} from '~/core/stores';
+import { useAppConfigStore } from '~/core/stores';
 
 export default defineNuxtPlugin(async () => {
   // Platform storage and schema migrations are handled by 01.migration.client.ts.
@@ -12,19 +6,9 @@ export default defineNuxtPlugin(async () => {
 
   // 1. Hydrate Essential Stores — required for any route to function properly.
   const appConfigStore = useAppConfigStore();
-  const workspaceStore = useWorkspacesStore();
-  const connectionStore = useManagementConnectionStore();
-  const wsStateStore = useWSStateStore();
-  const envTagStore = useEnvironmentTagStore();
 
   try {
-    await Promise.all([
-      appConfigStore.loadPersistData(),
-      workspaceStore.loadPersistData(),
-      connectionStore.loadPersistData(),
-      wsStateStore.loadPersistData(),
-      envTagStore.loadTags(),
-    ]);
+    await appConfigStore.loadPersistData();
     console.log('[Init Plugin] Essential stores hydrated.');
   } catch (error) {
     console.error('[Init Plugin] Failed to hydrate stores:', error);

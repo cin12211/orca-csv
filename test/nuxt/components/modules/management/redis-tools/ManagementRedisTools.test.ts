@@ -45,7 +45,6 @@ vi.mock('~/core/stores', async importOriginal => {
     ...actual,
     useAppConfigStore: createAsyncNoopStore,
     useAgentStore: createAsyncNoopStore,
-    useWorkspacesStore: createAsyncNoopStore,
     useManagementConnectionStore: () => ({
       ...createAsyncNoopStore(),
       selectedConnection: {
@@ -54,9 +53,6 @@ vi.mock('~/core/stores', async importOriginal => {
       },
     }),
     useWSStateStore: createAsyncNoopStore,
-    useEnvironmentTagStore: () => ({
-      loadTags: vi.fn().mockResolvedValue(undefined),
-    }),
   };
 });
 

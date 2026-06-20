@@ -1,7 +1,5 @@
-export { default as AgentConfig } from './AgentConfig.vue';
 export { default as AppearanceConfig } from './AppearanceConfig.vue';
 export { default as BackupRestoreConfig } from './BackupRestoreConfig.vue';
-export { default as QuickQueryConfig } from './QuickQueryConfig.vue';
 export { default as TableAppearanceConfig } from './TableAppearanceConfig.vue';
 export { default as TableAppearancePreview } from './TableAppearancePreview.vue';
 export * from './backup-restore';
