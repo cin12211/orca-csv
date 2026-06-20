@@ -1,10 +1,6 @@
 <script setup lang="ts">
+import { useFileDialog, useDropZone } from '@vueuse/core';
 import { ref } from 'vue';
-import {
-  useFileDialog,
-  useDropZone,
-  type MaybeComputedElementRef,
-} from '@vueuse/core';
 import { toast } from 'vue-sonner';
 import { CsvDropOverlay } from '~/components/modules/csv-editor/components';
 import { createCsvFileHandlesFromFiles } from '~/components/modules/csv-editor/utils';
@@ -61,7 +57,7 @@ const { isOverDropZone } = useDropZone(dropZoneRef, {
 });
 
 const { open: openFileDialog, onChange: onFileChange } = useFileDialog({
-  accept: '.csv',
+  accept: '.csv,text/csv',
   multiple: true,
 });
 
@@ -77,242 +73,375 @@ const toggleFaq = (index: number) => {
 
 const featuresList = [
   {
-    title: 'High-Performance Grid',
-    desc: 'Powered by AG Grid. Sort columns, pin headers, group cells, and view thousands of rows instantaneously.',
-    icon: 'hugeicons:grid-table',
+    title: 'Open and view instantly',
+    desc: 'Drop one or many CSV files and move straight into a fast table view with pinned headers and large-row handling.',
+    icon: 'hugeicons:file-upload',
   },
   {
-    title: '100% Local & Private',
-    desc: 'Your files are never uploaded to any servers. All file loading and processing happens locally on your computer.',
-    icon: 'hugeicons:information-circle',
+    title: 'Edit like a grid',
+    desc: 'Double-click cells, add rows, remove records, and keep the file clean without leaving the browser.',
+    icon: 'hugeicons:edit-02',
   },
   {
-    title: 'Advanced Filter Builder',
-    desc: 'Create complex, multi-column search rules visually. Target specifically the data rows you need to see.',
-    icon: 'hugeicons:settings-01',
+    title: 'Filter without formulas',
+    desc: 'Build visual filters across columns, scan results quickly, and keep the dataset readable.',
+    icon: 'hugeicons:filter',
   },
   {
-    title: 'Inline Cell Editing',
-    desc: 'Double-click any cell to edit details inline. Insert new rows, delete rows, and keep data clean.',
-    icon: 'hugeicons:copy-01',
-  },
-  {
-    title: 'Concurrent Tabs',
-    desc: 'Load and switch between multiple CSV tables instantly. No context switching or loss of work in progress.',
-    icon: 'hugeicons:folder-open',
-  },
-  {
-    title: 'Sleek Aesthetic Support',
-    desc: 'Enjoy a beautiful dark and light mode UI designed for maximum readability and visual elegance.',
-    icon: 'hugeicons:home-06',
+    title: 'Private by default',
+    desc: 'CSV parsing and editing run locally. Your data does not need to be uploaded to view it.',
+    icon: 'hugeicons:lock',
   },
 ];
 
 const faqsList = [
   {
-    q: 'Is my CSV data secure?',
-    a: 'Absolutely. OrcaQ CSV Viewer is fully local-first. All parsing, processing, and rendering take place client-side in your web browser. No files, records, or credentials ever touch our servers.',
+    q: 'Can I use this page as the app home?',
+    a: 'Yes. The landing page is also the starting point: upload a CSV or drop files anywhere on the page to open the editor.',
   },
   {
-    q: 'What is the maximum file size supported?',
-    a: 'We support files up to 200MB. Because the processing occurs in your web browser, performance and memory limits depend on your computer, but 200MB files run extremely fast.',
+    q: 'Does OrcaQ upload my CSV files?',
+    a: 'No. Files are read locally in your browser so you can view and edit without sending data to a server.',
   },
   {
-    q: 'Can I edit and export my data?',
-    a: 'Yes! Double-click any cell to edit it. You can insert or delete rows directly from the table control bar, and then export the finalized data back to a standard CSV file.',
-  },
-  {
-    q: 'How does Visual Filtering work?',
-    a: 'Click the Filter button in the table toolbar. You can visually chain multiple rule groups using standard operations like equals, contains, starts with, or numeric comparisons across columns.',
+    q: 'Can I open multiple files?',
+    a: 'Yes. Select or drop multiple CSV files and OrcaQ opens each file in its own tab.',
   },
 ];
 </script>
 
 <template>
-  <div
+  <main
     ref="dropZoneRef"
-    class="relative w-full min-h-full flex flex-col bg-background select-none overflow-x-hidden"
+    class="orca-landing relative min-h-full w-full overflow-x-hidden bg-[var(--landing-background)] text-[var(--landing-foreground)] selection:bg-[var(--landing-selection)]"
   >
-    <!-- Ambient Background Gradients -->
-    <div
-      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,0,0,0.02),transparent_40%)] dark:bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_40%)]"
-    />
-    <div
-      class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.01),transparent_20%)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_20%)]"
-    />
+    <section class="relative px-5 pb-8 pt-8 sm:px-6 sm:pb-10 sm:pt-10">
+      <div class="mx-auto max-w-[1280px] text-center">
+        <div class="mx-auto mb-8 flex justify-center">
+          <div
+            class="landing-logo-frame flex h-20 w-20 items-center justify-center overflow-hidden rounded-[22px] border"
+          >
+            <img
+              src="/logo.png"
+              alt="Orca CSV logo"
+              class="h-full w-full object-cover"
+            />
+          </div>
+        </div>
 
-    <!-- Hero Section -->
-    <section
-      class="relative flex flex-col items-center justify-center text-center px-4 py-20 md:py-32 max-w-4xl mx-auto z-10"
-    >
-      <!-- Hero Logo (AppMark styled) -->
-      <div class="mx-auto mb-8 flex justify-center">
-        <div class="relative h-20 w-20 overflow-hidden rounded-2xl border border-black/14 bg-secondary/80 dark:border-white/10 dark:bg-white/5 shadow-xl flex items-center justify-center">
-          <img src="/logo.png" alt="OrcaQ CSV Viewer Logo" class="h-full w-full object-cover" />
+        <p
+          class="mx-auto mb-5 w-fit rounded-full border border-[var(--landing-border)] bg-[var(--landing-surface-soft)] px-3 py-1 text-xs font-medium text-[var(--landing-muted)]"
+        >
+          Local-first CSV viewer and editor
+        </p>
+
+        <h1
+          class="mx-auto max-w-[980px] text-[44px] font-semibold leading-[0.96] tracking-normal text-[var(--landing-foreground)] sm:text-[72px] lg:text-[104px]"
+        >
+          Orca CSV
+        </h1>
+
+        <p
+          class="mx-auto mt-7 max-w-[680px] text-base leading-8 text-[var(--landing-copy)] sm:text-lg"
+        >
+          Upload a CSV, or drop it anywhere on this page to view, filter, and
+          edit large datasets in a focused local workspace.
+        </p>
+
+        <div class="flex items-center justify-center mt-8">
+          <div class="border w-1/2 border-dashed py-12 rounded-2xl">
+            <div
+              class="flex flex-col items-center justify-center gap-3 sm:flex-row"
+            >
+              <Button
+                size="lg"
+                class="h-12 rounded-full bg-[var(--landing-button-primary)] px-6 text-[13px] font-medium text-[var(--landing-button-primary-foreground)] shadow-none hover:scale-[1.02] hover:bg-[var(--landing-button-primary)] hover:opacity-90"
+                @click="openFileDialog()"
+              >
+                <Icon name="hugeicons:file-upload" class="size-5" />
+                Upload CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                class="h-12 rounded-full border-[var(--landing-button-secondary-border)] bg-[var(--landing-button-secondary)] px-6 text-[13px] font-medium text-[var(--landing-button-secondary-foreground)] shadow-none hover:scale-[1.02] hover:bg-[var(--landing-surface-soft)]"
+                @click="openFileDialog()"
+              >
+                <Icon name="hugeicons:folder-open" class="size-5" />
+                Drop your files here!
+              </Button>
+            </div>
+
+            <div
+              class="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-[var(--landing-faint)]"
+            >
+              <span class="inline-flex items-center gap-1.5">
+                <Icon name="hugeicons:information-circle" class="size-4" />
+                Drop CSV to view
+              </span>
+              <span
+                class="hidden h-1 w-1 rounded-full bg-current opacity-40 sm:block"
+              />
+              <span>Supports multiple .csv files up to 200MB</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <h1
-        class="text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-6"
-      >
-        OrcaQ CSV
-        <span
-          class="bg-gradient-to-r from-primary to-muted-foreground bg-clip-text text-transparent"
-        >
-          Viewer
-        </span>
-      </h1>
+      <div class="relative mx-auto mt-11 max-w-[1280px] sm:mt-14">
+        <img
+          src="/demo.png"
+          alt="Orca CSV editor showing multiple CSV tabs and customer data in a grid"
+          class="block aspect-[3360/1878] border shadow w-full rounded-md object-cover object-top"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    </section>
 
-      <p
-        class="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-8"
-      >
-        The high-performance, local-first CSV editor. Parse, filter, search, and
-        edit massive datasets securely inside your browser. No server uploads
-        required.
-      </p>
-
-      <div class="flex flex-col items-center gap-3">
-        <Button
-          variant="default"
-          size="lg"
-          class="h-12 px-8 rounded-full text-base font-medium shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-          @click="openFileDialog()"
-        >
-          <Icon name="hugeicons:folder-open" class="size-5 mr-2" />
-          Open CSV File
-        </Button>
-        <div
-          class="text-muted-foreground text-sm flex items-center justify-center gap-1.5 mt-2"
-        >
-          <Icon
-            name="hugeicons:information-circle"
-            class="size-4 text-muted-foreground"
-          />
-          Supports .csv files up to 200MB
+    <section class="px-5 py-16 sm:px-6">
+      <div class="mx-auto max-w-[1120px]">
+        <div class="mx-auto mb-10 max-w-[620px] text-center">
+          <p
+            class="text-xs font-semibold uppercase text-[var(--landing-faint)]"
+          >
+            CSV workflow
+          </p>
+          <h2
+            class="mt-3 text-3xl font-semibold tracking-normal text-[var(--landing-foreground)] sm:text-4xl"
+          >
+            Landing page first, usable app home always.
+          </h2>
         </div>
-        <div class="text-muted-foreground/60 text-xs mt-1">
-          or drag & drop your files anywhere on this page
+
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <article
+            v-for="feature in featuresList"
+            :key="feature.title"
+            class="landing-feature-card rounded-2xl border bg-[var(--landing-surface)] p-6"
+          >
+            <div
+              class="mb-5 flex size-11 items-center justify-center rounded-xl border border-[var(--landing-icon-border)] bg-[var(--landing-icon-bg)] text-[var(--landing-icon-fg)]"
+            >
+              <Icon :name="feature.icon" class="size-5" />
+            </div>
+            <h3
+              class="text-base font-semibold text-[var(--landing-foreground)]"
+            >
+              {{ feature.title }}
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-[var(--landing-copy)]">
+              {{ feature.desc }}
+            </p>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
-    <section
-      class="relative py-20 bg-secondary/20 border-t border-b border-border/30 z-10"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="text-center max-w-2xl mx-auto mb-16">
-          <Badge
-            variant="secondary"
-            class="mb-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-secondary/80 text-foreground border border-border/50"
+    <section class="px-5 py-16 sm:px-6">
+      <div class="mx-auto max-w-[860px]">
+        <div class="mb-8 text-center">
+          <h2
+            class="text-3xl font-semibold tracking-normal text-[var(--landing-foreground)]"
           >
-            Features
-          </Badge>
-          <h2 class="text-3xl md:text-4xl font-semibold tracking-tight mb-4">
-            A fast and fully featured CSV workshop
+            Questions before you open a file?
           </h2>
-          <p class="text-muted-foreground">
-            OrcaQ CSV brings database-grade control panel views directly to your
-            static CSV documents.
-          </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div
-            v-for="feat in featuresList"
-            :key="feat.title"
-            class="flex flex-col p-6 rounded-2xl border border-border/50 bg-card hover:shadow-lg hover:border-border transition-all"
-          >
-            <div
-              class="size-12 rounded-xl bg-secondary flex items-center justify-center mb-5 border border-border/40"
+        <div
+          class="divide-y divide-[var(--landing-border)] border-y border-[var(--landing-border)]"
+        >
+          <div v-for="(faq, index) in faqsList" :key="faq.q">
+            <button
+              type="button"
+              class="flex w-full items-center justify-between gap-4 py-5 text-left text-sm font-semibold text-[var(--landing-foreground)]"
+              @click="toggleFaq(index)"
             >
-              <Icon :name="feat.icon" class="size-6 text-foreground" />
-            </div>
-            <h3 class="text-lg font-semibold mb-2 text-foreground">
-              {{ feat.title }}
-            </h3>
-            <p class="text-sm text-muted-foreground leading-relaxed">
-              {{ feat.desc }}
+              <span>{{ faq.q }}</span>
+              <Icon
+                name="hugeicons:arrow-right-02"
+                :class="[
+                  'size-4 shrink-0 text-[var(--landing-muted)] transition-transform duration-200',
+                  activeFaq === index ? 'rotate-90' : '',
+                ]"
+              />
+            </button>
+            <p
+              v-show="activeFaq === index"
+              class="pb-5 pr-8 text-sm leading-7 text-[var(--landing-copy)]"
+            >
+              {{ faq.a }}
             </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="relative py-20 max-w-4xl mx-auto px-4 sm:px-6 z-10 w-full">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl font-semibold tracking-tight mb-2 text-foreground">
-          Frequently Asked Questions
-        </h2>
-        <p class="text-muted-foreground text-sm">
-          Have queries about OrcaQ CSV? Here are the answers.
-        </p>
-      </div>
-
-      <div class="space-y-4 border-t border-border/50 pt-4">
-        <div
-          v-for="(faq, index) in faqsList"
-          :key="faq.q"
-          class="border-b border-border/40 pb-4"
-        >
-          <button
-            type="button"
-            @click="toggleFaq(index)"
-            class="flex w-full items-center justify-between gap-4 py-3 text-left font-medium text-foreground hover:text-primary transition cursor-pointer"
-          >
-            <span>{{ faq.q }}</span>
-            <Icon
-              name="lucide:chevron-down"
-              :class="[
-                'size-4 text-muted-foreground transition-transform duration-300',
-                activeFaq === index ? 'rotate-180' : '',
-              ]"
-            />
-          </button>
-          <div
-            v-show="activeFaq === index"
-            class="mt-2 text-sm text-muted-foreground leading-relaxed pl-1"
-          >
-            {{ faq.a }}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer
-      class="relative py-12 mt-auto border-t border-border/40 bg-secondary/10 z-10"
-    >
+    <footer class="px-5 py-3 sm:px-6">
       <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left"
+        class="mx-auto flex max-w-[1120px] flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left"
       >
-        <div class="flex items-center space-x-2">
-          <Avatar class="rounded-xl size-6 border border-border/50 shadow-sm">
-            <AvatarImage src="/logo.png" alt="OrcaQ Logo" />
-          </Avatar>
-          <span class="text-sm font-semibold tracking-tight text-foreground">
-            orcaq csv
+        <div class="flex items-center gap-2.5">
+          <img src="/logo.png" alt="" class="size-7 rounded-lg" />
+          <span class="text-sm font-semibold text-[var(--landing-foreground)]">
+            Orca CSV
           </span>
         </div>
-        <div class="text-xs text-muted-foreground">
-          © 2026 OrcaQ. All rights reserved. Privacy-first, local workflow.
-        </div>
-        <div class="flex items-center gap-4 text-xs text-muted-foreground">
-          <a
-            :href="githubLink"
-            target="_blank"
-            class="hover:text-foreground transition flex items-center gap-1"
-          >
-            <Icon name="hugeicons:github" class="size-4" />
-            GitHub
-          </a>
-        </div>
+        <a
+          :href="githubLink"
+          target="_blank"
+          rel="noreferrer"
+          class="inline-flex items-center gap-2 text-xs text-[var(--landing-muted)] transition hover:text-[var(--landing-foreground)]"
+        >
+          <Icon name="hugeicons:github" class="size-4" />
+          GitHub
+        </a>
       </div>
     </footer>
 
-    <!-- Drop overlay -->
     <CsvDropOverlay v-if="isOverDropZone" />
-  </div>
+  </main>
 </template>
 
+<style scoped>
+.orca-landing {
+  --landing-background: #ffffff;
+  --landing-foreground: #111111;
+  --landing-copy: #4b4b52;
+  --landing-muted: #6e6e78;
+  --landing-faint: #909099;
+  --landing-surface: #ffffff;
+  --landing-surface-soft: #f8f8f6;
+  --landing-border: rgba(17, 17, 17, 0.08);
+  --landing-border-strong: rgba(17, 17, 17, 0.14);
+  --landing-selection: rgba(17, 17, 17, 0.16);
+  --landing-button-primary: #111111;
+  --landing-button-primary-foreground: #ffffff;
+  --landing-button-secondary: rgba(255, 255, 255, 0.82);
+  --landing-button-secondary-border: rgba(17, 17, 17, 0.12);
+  --landing-button-secondary-foreground: #29292f;
+  --landing-logo-bg: color-mix(
+    in srgb,
+    var(--landing-surface-soft) 82%,
+    transparent
+  );
+  --landing-logo-border: rgba(17, 17, 17, 0.14);
+  --landing-logo-shadow: 0 10px 10px rgba(17, 17, 17, 0.1);
+  --landing-icon-bg: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(241, 241, 237, 0.96) 100%
+  );
+  --landing-icon-border: rgba(17, 17, 17, 0.09);
+  --landing-icon-fg: #273242;
+  --landing-preview-frame: #efeae0;
+  --landing-preview-window: rgba(250, 248, 242, 0.94);
+  --landing-preview-topbar: rgba(240, 235, 226, 0.88);
+  --landing-preview-sidebar: #e9e4d9;
+  --landing-preview-main: #f4f0e8;
+  --landing-preview-panel: rgba(255, 255, 255, 0.76);
+  --landing-preview-panel-strong: rgba(255, 255, 255, 0.92);
+  --landing-preview-chip: rgba(17, 17, 17, 0.04);
+  --landing-preview-row-active: rgba(17, 17, 17, 0.04);
+  --landing-preview-border: rgba(17, 17, 17, 0.08);
+  --landing-preview-text: #18181d;
+  --landing-preview-muted: #5b5b65;
+  --landing-preview-shadow: 0 10px 30px rgba(17, 17, 17, 0.06);
+}
+
+.dark .orca-landing {
+  --landing-background: #0f0f0f;
+  --landing-foreground: #ffffff;
+  --landing-copy: #9e9ea6;
+  --landing-muted: #7d7d85;
+  --landing-faint: #606068;
+  --landing-surface: #141414;
+  --landing-surface-soft: #1a1a1a;
+  --landing-border: rgba(255, 255, 255, 0.08);
+  --landing-border-strong: rgba(255, 255, 255, 0.14);
+  --landing-selection: rgba(255, 255, 255, 0.18);
+  --landing-button-primary: #ffffff;
+  --landing-button-primary-foreground: #000000;
+  --landing-button-secondary: transparent;
+  --landing-button-secondary-border: #333333;
+  --landing-button-secondary-foreground: #cfcfcf;
+  --landing-logo-bg: rgba(255, 255, 255, 0.05);
+  --landing-logo-border: rgba(255, 255, 255, 0.1);
+  --landing-logo-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  --landing-icon-bg: rgba(255, 255, 255, 0.03);
+  --landing-icon-border: rgba(255, 255, 255, 0.1);
+  --landing-icon-fg: rgba(255, 255, 255, 0.92);
+  --landing-preview-frame: #0d0f11;
+  --landing-preview-window: rgba(13, 15, 17, 0.96);
+  --landing-preview-topbar: rgba(0, 0, 0, 0.45);
+  --landing-preview-sidebar: #0f1012;
+  --landing-preview-main: #111315;
+  --landing-preview-panel: rgba(255, 255, 255, 0.03);
+  --landing-preview-panel-strong: rgba(0, 0, 0, 0.38);
+  --landing-preview-chip: rgba(255, 255, 255, 0.03);
+  --landing-preview-row-active: rgba(255, 255, 255, 0.06);
+  --landing-preview-border: rgba(255, 255, 255, 0.08);
+  --landing-preview-text: rgba(255, 255, 255, 0.92);
+  --landing-preview-muted: rgba(255, 255, 255, 0.72);
+  --landing-preview-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.landing-logo-frame {
+  background: var(--landing-logo-bg);
+  border-color: var(--landing-logo-border);
+  box-shadow: var(--landing-logo-shadow);
+}
+
+.landing-preview-shell {
+  animation: landing-load-in 720ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+}
+
+.landing-preview-window {
+  border-color: var(--landing-preview-border);
+  background: var(--landing-preview-window);
+}
+
+.landing-preview-topbar {
+  border-color: var(--landing-preview-border);
+  background: var(--landing-preview-topbar);
+}
+
+.landing-feature-card {
+  border-color: var(--landing-border);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 4px 8px rgba(0, 0, 0, 0.02);
+  transition:
+    border-color 300ms ease,
+    box-shadow 300ms ease,
+    transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.landing-feature-card:hover {
+  border-color: var(--landing-border-strong);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.03),
+    0 8px 16px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+@keyframes landing-load-in {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-preview-shell,
+  .landing-feature-card {
+    animation: none;
+    transition: none;
+  }
+}
+</style>
