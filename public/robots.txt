@@ -1,1 +1,28 @@
+User-agent: *
+Allow: /
+Disallow: /csv/
+Disallow: /test-fs
 
+User-agent: GPTBot
+Allow: /
+Disallow: /csv/
+Disallow: /test-fs
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /csv/
+Disallow: /test-fs
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /csv/
+Disallow: /test-fs
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /csv/
+Disallow: /test-fs
+
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
+Sitemap: https://orca-q.com/sitemap.xml

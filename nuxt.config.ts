@@ -77,7 +77,14 @@ export default defineNuxtConfig({
   telemetry: false,
 
   routeRules: {
+    '/': {
+      ssr: true,
+      headers: {
+        Link: '<https://github.com/cin12211/orca-q>; rel="related", <https://orca-q.com/>; rel="canonical"',
+      },
+    },
     '/csv/**': { ssr: false },
+    '/test-fs': { ssr: false },
   },
 
   devServer: {
