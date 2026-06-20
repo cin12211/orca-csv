@@ -1,3 +1,4 @@
+import { markRaw } from 'vue';
 import { MAX_CSV_FILE_SIZE } from '../constants/csv-editor.constants';
 import type { CsvFileHandle } from '@/core/services/csv';
 
@@ -26,8 +27,8 @@ export async function createCsvFileHandleFromWebDrag(
         size: file.size,
         lastModified: file.lastModified,
         platform: 'web',
-        _webHandle: fileHandle,
-        _file: file,
+        _webHandle: markRaw(fileHandle),
+        _file: markRaw(file),
       };
     }
   }
@@ -44,7 +45,7 @@ export async function createCsvFileHandleFromWebDrag(
     size: file.size,
     lastModified: file.lastModified,
     platform: 'web',
-    _file: file,
+    _file: markRaw(file),
   };
 }
 

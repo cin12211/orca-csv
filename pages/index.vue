@@ -2,9 +2,16 @@
 import { useFileDialog, useDropZone } from '@vueuse/core';
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
-import { CsvDropOverlay } from '~/components/modules/csv-editor/components';
-import { createCsvFileHandlesFromFiles } from '~/components/modules/csv-editor/utils';
+import CsvDropOverlay from '~/components/modules/csv-editor/components/CsvDropOverlay.vue';
+import { createCsvFileHandlesFromDrop } from '~/components/modules/csv-editor/utils/dragDrop';
+import { createCsvFileHandlesFromFiles } from '~/components/modules/csv-editor/utils/createCsvFileHandleFromFiles';
+import {
+  openCsvFiles as openNativeCsvFiles,
+  readCsvFile,
+} from '~/core/composables/useCsvFileSystemAccess';
 import { useTabManagement } from '~/core/composables/useTabManagement';
+import type { CsvFileHandle } from '~/core/services/csv';
+import { isFileSystemAPISupported } from '~/core/services/csv';
 
 definePageMeta({
   layout: 'home',
@@ -17,31 +24,51 @@ const { openCsvEditorTab } = useTabManagement();
 
 const dropZoneRef = useTemplateRef('dropZoneRef');
 
+const openCsvHandles = async (handles: CsvFileHandle[]) => {
+  if (handles.length === 0) return;
+
+  for (const handle of handles) {
+    const content = await readCsvFile(handle);
+    await openCsvEditorTab({
+      fileHandle: handle,
+      cachedContent: content,
+    });
+  }
+
+  if (handles.length === 1) {
+    toast.success(`Opened CSV file: ${handles[0].name}`);
+  } else {
+    toast.success(`Opened ${handles.length} CSV files`);
+  }
+};
+
 const openFiles = async (files: File[] | null) => {
   if (!files || files.length === 0) return;
 
+  const handles = await createCsvFileHandlesFromFiles(files);
+  if (handles.length === 0) {
+    toast.error(
+      'No valid CSV files found. Only .csv files under 200MB are supported.'
+    );
+    return;
+  }
+
+  await openCsvHandles(handles);
+};
+
+const openFilesWithPicker = async () => {
+  const handles = await openNativeCsvFiles();
+  await openCsvHandles(handles);
+};
+
+const handleOpenCsv = async () => {
   try {
-    const handles = await createCsvFileHandlesFromFiles(files);
-    if (handles.length === 0) {
-      toast.error(
-        'No valid CSV files found. Only .csv files under 200MB are supported.'
-      );
+    if (isFileSystemAPISupported()) {
+      await openFilesWithPicker();
       return;
     }
 
-    for (const handle of handles) {
-      const content = handle._file ? await handle._file.text() : '';
-      await openCsvEditorTab({
-        fileHandle: handle,
-        cachedContent: content,
-      });
-    }
-
-    if (handles.length === 1) {
-      toast.success(`Opened CSV file: ${handles[0].name}`);
-    } else {
-      toast.success(`Opened ${handles.length} CSV files`);
-    }
+    openFileDialog();
   } catch (err) {
     console.error('Failed to open CSV files:', err);
     toast.error(
@@ -51,7 +78,24 @@ const openFiles = async (files: File[] | null) => {
 };
 
 const { isOverDropZone } = useDropZone(dropZoneRef, {
-  onDrop: openFiles,
+  onDrop: async (files, event) => {
+    try {
+      if (event.dataTransfer) {
+        const handles = await createCsvFileHandlesFromDrop(event.dataTransfer);
+        if (handles.length > 0) {
+          await openCsvHandles(handles);
+          return;
+        }
+      }
+
+      await openFiles(files);
+    } catch (err) {
+      console.error('Failed to open CSV files:', err);
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to open CSV files'
+      );
+    }
+  },
   dataTypes: ['text/csv'],
   multiple: true,
 });
@@ -150,27 +194,42 @@ const faqsList = [
 
         <div class="flex items-center justify-center mt-8">
           <div class="border w-1/2 border-dashed py-12 rounded-2xl">
-            <div
-              class="flex flex-col items-center justify-center gap-3 sm:flex-row"
-            >
-              <Button
-                size="lg"
-                class="h-12 rounded-full bg-[var(--landing-button-primary)] px-6 text-[13px] font-medium text-[var(--landing-button-primary-foreground)] shadow-none hover:scale-[1.02] hover:bg-[var(--landing-button-primary)] hover:opacity-90"
-                @click="openFileDialog()"
+            <ClientOnly fallback-tag="div">
+              <div
+                class="flex flex-col items-center justify-center gap-3 sm:flex-row"
               >
-                <Icon name="hugeicons:file-upload" class="size-5" />
-                Upload CSV
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                class="h-12 rounded-full border-[var(--landing-button-secondary-border)] bg-[var(--landing-button-secondary)] px-6 text-[13px] font-medium text-[var(--landing-button-secondary-foreground)] shadow-none hover:scale-[1.02] hover:bg-[var(--landing-surface-soft)]"
-                @click="openFileDialog()"
-              >
-                <Icon name="hugeicons:folder-open" class="size-5" />
-                Drop your files here!
-              </Button>
-            </div>
+                <Button
+                  size="lg"
+                  class="h-12 rounded-full bg-[var(--landing-button-primary)] px-6 text-[13px] font-medium text-[var(--landing-button-primary-foreground)] shadow-none hover:scale-[1.02] hover:bg-[var(--landing-button-primary)] hover:opacity-90"
+                  @click="handleOpenCsv"
+                >
+                  <Icon name="hugeicons:file-upload" class="size-5" />
+                  Upload CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  class="h-12 rounded-full border-[var(--landing-button-secondary-border)] bg-[var(--landing-button-secondary)] px-6 text-[13px] font-medium text-[var(--landing-button-secondary-foreground)] shadow-none hover:scale-[1.02] hover:bg-[var(--landing-surface-soft)]"
+                  @click="handleOpenCsv"
+                >
+                  <Icon name="hugeicons:folder-open" class="size-5" />
+                  Drop your files here!
+                </Button>
+              </div>
+              <template #fallback>
+                <div
+                  aria-hidden="true"
+                  class="flex flex-col items-center justify-center gap-3 sm:flex-row"
+                >
+                  <div
+                    class="h-12 w-40 rounded-full border border-[var(--landing-border)] bg-[var(--landing-surface-soft)] animate-pulse"
+                  />
+                  <div
+                    class="h-12 w-40 rounded-full border border-[var(--landing-border)] bg-[var(--landing-surface-soft)] animate-pulse"
+                  />
+                </div>
+              </template>
+            </ClientOnly>
 
             <div
               class="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-[var(--landing-faint)]"
@@ -299,7 +358,9 @@ const faqsList = [
       </div>
     </footer>
 
-    <CsvDropOverlay v-if="isOverDropZone" />
+    <ClientOnly>
+      <CsvDropOverlay v-if="isOverDropZone" />
+    </ClientOnly>
   </main>
 </template>
 

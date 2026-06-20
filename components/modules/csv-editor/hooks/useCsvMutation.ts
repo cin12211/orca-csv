@@ -112,6 +112,10 @@ export function useCsvMutation(
         options.onSaveSuccess();
       }
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        // User cancelled the save dialog, which is a normal action.
+        return;
+      }
       console.error('Failed to save CSV file:', error);
       saveError.value =
         error instanceof Error ? error.message : 'Failed to save file';

@@ -175,5 +175,9 @@ export default defineNuxtConfig({
   spaLoadingTemplate: true,
   nitro: {
     preset: 'cloudflare-module',
+    replace: {
+      'typeof window': '`undefined`',
+      'window': 'window',
+    },
   },
 });

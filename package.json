@@ -194,6 +194,10 @@
     "wait-on": "^9.0.4",
     "zod": "^4.3.5"
   },
+  "overrides": {
+    "@vueuse/core": "13.9.0",
+    "@vueuse/shared": "13.9.0"
+  },
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"

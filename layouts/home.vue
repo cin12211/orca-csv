@@ -60,19 +60,31 @@ const toggleTheme = () => {
           </a>
 
           <!-- Theme Toggle -->
-          <Button
-            variant="ghost"
-            size="icon"
-            class="rounded-full size-9 text-muted-foreground hover:text-foreground hover:bg-secondary/80 cursor-pointer"
-            @click="toggleTheme"
-          >
-            <Icon
-              v-if="colorMode.value === 'dark'"
-              name="lucide:moon-star"
-              class="h-4 w-4"
-            />
-            <Icon v-else name="lucide:sun" class="h-4 w-4" />
-          </Button>
+          <ClientOnly>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="rounded-full size-9 text-muted-foreground hover:text-foreground hover:bg-secondary/80 cursor-pointer"
+              @click="toggleTheme"
+            >
+              <Icon
+                v-if="colorMode.value === 'dark'"
+                name="lucide:moon-star"
+                class="h-4 w-4"
+              />
+              <Icon v-else name="lucide:sun" class="h-4 w-4" />
+            </Button>
+            <template #fallback>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="rounded-full size-9 text-muted-foreground hover:text-foreground hover:bg-secondary/80 cursor-pointer animate-pulse"
+                disabled
+              >
+                <div class="h-4 w-4 rounded-full bg-muted/20" />
+              </Button>
+            </template>
+          </ClientOnly>
         </div>
       </div>
     </header>

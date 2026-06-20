@@ -57,7 +57,7 @@ export class WebCsvFileSystem implements CsvFileSystemAPI {
   }
 
   async writeFile(handle: CsvFileHandle, content: string): Promise<void> {
-    if (handle._webHandle) {
+    if (handle._webHandle && typeof handle._webHandle.createWritable === 'function') {
       await writeCsvFile(handle._webHandle, content);
       return;
     }

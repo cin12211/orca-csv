@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, markRaw } from 'vue';
 import { BaseEmpty } from '~/components/base/base-empty';
 import { CsvEditor } from '~/components/modules/csv-editor';
 import type { CsvFileHandle } from '~/core/services/csv';
@@ -34,8 +34,8 @@ const fileHandle = computed<CsvFileHandle | null>(() => {
     size: meta.fileSize ?? 0,
     lastModified: meta.lastModified ?? Date.now(),
     platform,
-    _webHandle: meta._webHandle,
-    _file: meta._file,
+    _webHandle: meta._webHandle ? markRaw(meta._webHandle) : undefined,
+    _file: meta._file ? markRaw(meta._file) : undefined,
     _cachedContent: meta.cachedContent,
   };
 

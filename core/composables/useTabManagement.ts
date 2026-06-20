@@ -1,4 +1,5 @@
 import type { RoutesNamesList } from '@typed-router/__routes';
+import { markRaw } from 'vue';
 import { useWorkspaceConnectionRoute } from '~/core/composables/useWorkspaceConnectionRoute';
 import { TabViewType, useTabViewsStore } from '~/core/stores/useTabViewsStore';
 
@@ -43,8 +44,10 @@ export const useTabManagement = () => {
     const fileSize = fileHandle?.size ?? params.fileSize;
     const lastModified = fileHandle?.lastModified ?? params.lastModified;
     const hasHeaders = params.hasHeaders ?? true;
-    const _webHandle = fileHandle?._webHandle;
-    const _file = fileHandle?._file;
+    const _webHandle = fileHandle?._webHandle
+      ? markRaw(fileHandle._webHandle)
+      : undefined;
+    const _file = fileHandle?._file ? markRaw(fileHandle._file) : undefined;
 
     const hashString = (str: string) => {
       let hash = 0;

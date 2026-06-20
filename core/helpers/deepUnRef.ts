@@ -3,6 +3,15 @@ import { isRef, unref } from 'vue';
 const isObject = (val: unknown): val is Record<any, any> =>
   val !== null && typeof val === 'object';
 
+const isPlainObject = (val: unknown): val is Record<any, any> => {
+  if (!isObject(val)) {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(val);
+  return prototype === Object.prototype || prototype === null;
+};
+
 /**
  * Deeply unref a value, recursing into objects and arrays.
  */
@@ -17,6 +26,10 @@ export const deepUnref = <T>(val: T): T => {
     return unrefArray(checkedVal) as unknown as T;
   }
 
+  if (!isPlainObject(checkedVal)) {
+    return checkedVal as T;
+  }
+
   return unrefObject(checkedVal) as T;
 };
 
@@ -24,8 +37,7 @@ export const deepUnref = <T>(val: T): T => {
  * Unref a value, recursing into it if it's an object.
  */
 const smartUnref = <T>(val: T): T => {
-  // Non-ref object? Go deeper!
-  if (val !== null && !isRef(val) && typeof val === 'object') {
+  if (Array.isArray(val) || isPlainObject(val)) {
     return deepUnref(val);
   }
 

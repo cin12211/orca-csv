@@ -1,3 +1,4 @@
+import { markRaw } from 'vue';
 import type { CsvFileHandle } from '~/core/services/csv/types';
 
 /**
@@ -86,6 +87,6 @@ export function createCsvFileHandle(
     size: file.size,
     lastModified: file.lastModified,
     platform: 'web',
-    _webHandle: webHandle,
+    _webHandle: markRaw(webHandle),
   };
 }
