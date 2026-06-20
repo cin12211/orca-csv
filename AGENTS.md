@@ -1,8 +1,7 @@
 # HeraQ / OrcaQ Agent Guide
 
 Orcaq is next-gen database client. Friendly, powerful
-This repo is a Nuxt 3 + Vue 3 + TypeScript with Electron
-desktop support.
+This repo is a Nuxt 3 + Vue 3 + TypeScript web application.
 
 ## Repo Layout And Important Directories
 
@@ -22,8 +21,6 @@ desktop support.
   helpers, constants, stores, types, persistence abstractions, and contexts.
 - `server/` contains Nuxt server API routes and backend infrastructure for
   database adapters, drivers, metadata, query execution, Redis, and AI features.
-- `electron/` contains the Electron desktop wrapper, persistence schema, and
-  desktop-specific implementation.
 - `pages/` contains Nuxt file-based routes for workspaces, connections, ERD,
   schema management, raw query, and quick query.
 - `plugins/` contains Nuxt plugins. Be careful changing app initialization or
@@ -66,10 +63,6 @@ Nuxt/Electron workflows.
 - Run the web app locally: `bun run dev` or `bun run nuxt:dev`.
 - Build Nuxt: `bun run nuxt:build`.
 - Generate static output: `bun run nuxt:generate`.
-- Run Electron in development: `bun run electron:dev`.
-- Compile Electron TypeScript: `bun run electron:compile`.
-- Build/package Electron: `bun run electron:build`, `bun run electron:pack`, or
-  `bun run electron:build:mac-m`.
 - Run Storybook: `bun run storybook`.
 - Format all files: `bun run format`.
 - Check formatting: `bun run format:check`.
