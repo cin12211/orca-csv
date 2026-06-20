@@ -169,4 +169,7 @@ export default defineNuxtConfig({
   },
   ignore: ['**/docs/**', '**/.sqlite3/**'],
   spaLoadingTemplate: true,
+  nitro: {
+    preset: 'cloudflare-module',
+  },
 });
